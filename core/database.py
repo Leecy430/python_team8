@@ -127,6 +127,16 @@ def init_db():
         end_time   TEXT    -- '18:00'
     )""")
 
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS calendar (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        title       TEXT,
+        start_time  TEXT,
+        end_time    TEXT,
+        location    TEXT,
+        description TEXT
+    )""")
+
     conn.commit()
     conn.close()
     print("✅ DB 초기화 완료")
