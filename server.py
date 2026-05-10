@@ -19,7 +19,7 @@ from datetime import datetime, timezone, timedelta
 # 모듈 임포트
 from core.database import init_db
 from core.replay import get_snapshot, get_steps_timeseries, get_sleep_timeseries, get_heartrate_timeseries, get_all_dates
-from modules.nutrition import process_food_image, get_today_meals, get_today_nutrition_summary
+from modules.nutrition import process_food_image,  get_today_meals, get_today_nutrition_summary
 from modules.diet import get_diet_recommendation
 from modules.exercise import get_exercise_recommendation, get_free_slot_exercise, save_exercise
 from modules.weather import get_current_weather, is_good_for_walk
