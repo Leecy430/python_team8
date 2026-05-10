@@ -1,80 +1,66 @@
 """
 modules/calendar_sync.py
-Google Calendar API 연동 - 오늘 일정 가져오기
+Google Calendar ICS 파일 파싱 → DB 저장
 """
 
-import os
+from icalendar import Calendar
+import sqlite3
 from datetime import datetime, timezone, timedelta
 from dotenv import load_dotenv
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from googleapiclient.discovery import build
-import pickle
 
 load_dotenv(override=True)
-
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
-CREDENTIALS_PATH = 'db/credentials.json'
-TOKEN_PATH = 'db/token.pickle'
 KST = timezone(timedelta(hours=9))
+ICS_PATH = 'data/leecy430@gmail.com.ics'
 
-def get_calendar_service():
-    """Google Calendar 서비스 객체 반환"""
-    creds = None
+def sync_calendar_from_ics(ics_path: str = ICS_PATH) -> int:
+    """ICS 파일 파싱 → calendar 테이블 저장"""
+    from core.database import get_conn
+    conn = get_conn()
+    conn.execute('DELETE FROM calendar')
+    inserted = 0
 
-    # 기존 토큰 있으면 불러오기
-    if os.path.exists(TOKEN_PATH):
-        with open(TOKEN_PATH, 'rb') as f:
-            creds = pickle.load(f)
+    with open(ics_path, 'rb') as f:
+        cal = Calendar.from_ical(f.read())
 
-    # 토큰 없거나 만료됐으면 재인증
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
+    for component in cal.walk():
+        if component.name != 'VEVENT':
+            continue
+
+        title = str(component.get('SUMMARY', '제목없음'))
+        start = component.get('DTSTART').dt
+        end   = component.get('DTEND').dt
+
+        if hasattr(start, 'hour'):
+            start_str = start.astimezone(KST).strftime('%Y-%m-%d %H:%M')
+            end_str   = end.astimezone(KST).strftime('%Y-%m-%d %H:%M')
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                CREDENTIALS_PATH, SCOPES)
-            creds = flow.run_local_server(port=0)
-        with open(TOKEN_PATH, 'wb') as f:
-            pickle.dump(creds, f)
+            start_str = start.strftime('%Y-%m-%d')
+            end_str   = end.strftime('%Y-%m-%d')
 
-    return build('calendar', 'v3', credentials=creds)
+        conn.execute('''
+            INSERT INTO calendar (title, start_time, end_time, location, description)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (title, start_str, end_str,
+              str(component.get('LOCATION', '')),
+              str(component.get('DESCRIPTION', ''))))
+        inserted += 1
 
-def get_today_events() -> list[dict]:
-    """
-    오늘 구글 캘린더 일정 가져오기
-    반환: [{"title": "...", "start": "HH:MM", "end": "HH:MM"}, ...]
-    """
-    service = get_calendar_service()
+    conn.commit()
+    conn.close()
+    return inserted
 
-    now = datetime.now(tz=KST)
-    today_start = now.replace(hour=0, minute=0, second=0).isoformat()
-    today_end   = now.replace(hour=23, minute=59, second=59).isoformat()
+def get_today_events(date: str = None) -> list[dict]:
+    """오늘 일정 조회"""
+    from core.database import get_conn
+    if date is None:
+        date = datetime.now(tz=KST).strftime('%Y-%m-%d')
 
-    events_result = service.events().list(
-        calendarId='primary',
-        timeMin=today_start,
-        timeMax=today_end,
-        singleEvents=True,
-        orderBy='startTime'
-    ).execute()
-
-    events = events_result.get('items', [])
-    result = []
-    for e in events:
-        start = e['start'].get('dateTime', e['start'].get('date', ''))
-        end   = e['end'].get('dateTime', e['end'].get('date', ''))
-        # HH:MM 형식으로 변환
-        try:
-            start_time = datetime.fromisoformat(start).astimezone(KST).strftime('%H:%M')
-            end_time   = datetime.fromisoformat(end).astimezone(KST).strftime('%H:%M')
-        except:
-            start_time = start
-            end_time   = end
-        result.append({
-            "title": e.get('summary', '제목 없음'),
-            "start": start_time,
-            "end":   end_time,
-        })
-    return result
+    conn = get_conn()
+    rows = conn.execute('''
+        SELECT title, start_time, end_time, location
+        FROM calendar
+        WHERE start_time LIKE ?
+        ORDER BY start_time
+    ''', (f'{date}%',)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
