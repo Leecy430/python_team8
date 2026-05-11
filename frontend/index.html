@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>세얼간이 건강지킴이</title>
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+</head>
+<body>
+
+<!-- 내비게이션 -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">🏃 세얼간이</a>
+    <div class="nav-links">
+      <a href="/"         class="nav-link active">대시보드</a>
+      <a href="/diet"     class="nav-link">🍽 식단</a>
+      <a href="/exercise" class="nav-link">🏋 운동</a>
+      <a href="/settings" class="nav-link">⚙️ 설정</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- 페이지 헤더 -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">오늘의 건강 대시보드</div>
+      <div class="page-subtitle">세얼간이 건강지킴이 — 삼성헬스 + AI 분석</div>
+    </div>
+    <div class="date-row">
+      <button class="date-nav-btn" onclick="prevDay()">‹</button>
+      <input type="date" id="dateInput" class="date-input" onchange="onDateChange(this.value)">
+      <button class="date-nav-btn" onclick="nextDay()">›</button>
+      <button class="btn btn-secondary btn-sm" onclick="loadAll()">🔄</button>
+    </div>
+  </div>
+
+  <!-- 통계 카드 4개 -->
+  <div class="grid-4">
+    <div class="card stat-card stat-blue"  id="steps-card">
+      <div class="loading-box"><div class="spinner"></div></div>
+    </div>
+    <div class="card stat-card stat-purple" id="sleep-card">
+      <div class="loading-box"><div class="spinner"></div></div>
+    </div>
+    <div class="card stat-card stat-red"   id="hr-card">
+      <div class="loading-box"><div class="spinner"></div></div>
+    </div>
+    <div class="card stat-card stat-orange" id="inbody-card">
+      <div class="loading-box"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- 날씨 + 산책 -->
+  <div class="grid-2-1">
+    <div class="card" id="weather-card">
+      <div class="loading-box"><div class="spinner"></div></div>
+    </div>
+    <div class="card" id="walk-card">
+      <div class="loading-box"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- 시간표 + 식단 요약 -->
+  <div class="grid-2">
+    <div class="card" id="schedule-card">
+      <div class="loading-box"><div class="spinner"></div></div>
+    </div>
+    <div class="card" id="meal-summary">
+      <div class="loading-box"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- 옷차림 추천 (outfit 모듈) -->
+  <div class="card outfit-card" id="outfit-card">
+    <div class="loading-box"><div class="spinner"></div><div>AI 옷차림 분석 중...</div></div>
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,698 @@
+/* =============================================
+   components.css — UI 컴포넌트 스타일
+   세얼간이 건강지킴이
+   ============================================= */
+
+/* ── 카드 ──────────────────────────────────── */
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.card-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.2px;
+}
+
+/* ── Stat 카드 (대시보드 4개) ─────────────── */
+.stat-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: -20px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  opacity: 0.08;
+}
+
+.stat-blue   { border-top: 3px solid var(--primary); }
+.stat-purple { border-top: 3px solid var(--purple); }
+.stat-red    { border-top: 3px solid var(--red); }
+.stat-orange { border-top: 3px solid var(--orange); }
+
+.stat-blue::before   { background: var(--primary); }
+.stat-purple::before { background: var(--purple); }
+.stat-red::before    { background: var(--red); }
+.stat-orange::before { background: var(--orange); }
+
+.stat-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.stat-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* 걸음수 링 */
+.step-ring-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.step-ring {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.step-ring svg {
+  transform: rotate(-90deg);
+}
+
+.step-ring-pct {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+/* ── 뱃지 ──────────────────────────────────── */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badge-blue   { background: var(--primary-light); color: var(--primary); }
+.badge-green  { background: var(--green-light);   color: #15803d; }
+.badge-orange { background: var(--orange-light);  color: #c2410c; }
+.badge-red    { background: var(--red-light);     color: #b91c1c; }
+.badge-purple { background: var(--purple-light);  color: #7e22ce; }
+.badge-yellow { background: var(--yellow-light);  color: #a16207; }
+
+/* ── 버튼 ──────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: #fff;
+}
+.btn-primary:hover { background: var(--primary-dark); }
+
+.btn-secondary {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { background: var(--border); }
+
+.btn-green {
+  background: var(--green);
+  color: #fff;
+}
+.btn-green:hover { background: #16a34a; }
+
+.btn-sm  { padding: 6px 14px; font-size: 13px; }
+.btn-xs  { padding: 4px 10px; font-size: 12px; border-radius: 8px; }
+.btn-full { width: 100%; }
+
+/* ── 날짜 네비 ─────────────────────────────── */
+.date-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.date-nav-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: all .15s;
+}
+.date-nav-btn:hover { background: var(--bg); color: var(--text); }
+
+.date-input {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--card);
+  cursor: pointer;
+}
+
+/* ── 스피너 / 로딩 ─────────────────────────── */
+.loading-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── 빈 상태 ─────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 16px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.empty-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+/* ── 토스트 ────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #1e293b;
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: all .25s;
+  z-index: 9999;
+  white-space: nowrap;
+  max-width: 90vw;
+  box-shadow: 0 8px 24px rgba(0,0,0,.18);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── 알림 ──────────────────────────────────── */
+.alert {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.alert-info    { background: #eff6ff; color: #1d4ed8; border-left: 3px solid var(--primary); }
+.alert-warning { background: #fffbeb; color: #92400e; border-left: 3px solid var(--yellow); }
+.alert-success { background: var(--green-light); color: #15803d; border-left: 3px solid var(--green); }
+.alert-danger  { background: var(--red-light);   color: #b91c1c; border-left: 3px solid var(--red); }
+
+/* ── 업로드 영역 ─────────────────────────── */
+.upload-area {
+  border: 2px dashed var(--border);
+  border-radius: 14px;
+  padding: 36px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  background: var(--bg);
+}
+
+.upload-area:hover,
+.upload-area.drag-over {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.upload-icon {
+  font-size: 36px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.upload-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.upload-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ── 입력 폼 ─────────────────────────────── */
+.input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--text);
+  background: var(--card);
+  transition: border-color .15s;
+  outline: none;
+  font-family: inherit;
+}
+
+.input:focus { border-color: var(--primary); }
+
+.input-group {
+  margin-bottom: 14px;
+}
+
+.input-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── 날씨 카드 ─────────────────────────────── */
+.weather-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.weather-icon-img {
+  width: 52px;
+  height: 52px;
+}
+
+.weather-temp {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 1;
+}
+
+.weather-cond {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.weather-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.weather-item {
+  font-size: 13px;
+  color: var(--text-muted);
+  background: var(--bg);
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+/* ── 옷차림 카드 ─────────────────────────── */
+.outfit-card {
+  border-left: 4px solid var(--purple);
+}
+
+.outfit-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.outfit-row:last-of-type { border-bottom: none; }
+
+.outfit-row-icon { font-size: 20px; flex-shrink: 0; }
+.outfit-row-label { font-size: 13px; color: var(--text-muted); width: 48px; flex-shrink: 0; }
+.outfit-row-val   { font-size: 14px; font-weight: 700; }
+
+/* ── AI 카드 ─────────────────────────────── */
+.ai-card {
+  background: linear-gradient(135deg, #f0f9ff, #fafafa);
+  border: 1px solid #bfdbfe;
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.ai-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 10px;
+}
+
+.ai-comment {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.6;
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border-left: 3px solid var(--primary);
+}
+
+/* ── 진행 바 ──────────────────────────────── */
+.progress-wrap {
+  margin-bottom: 12px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: var(--text-muted);
+}
+
+.progress-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width .5s ease;
+}
+
+.prog-orange .progress-fill { background: var(--orange); }
+.prog-blue   .progress-fill { background: var(--primary); }
+.prog-green  .progress-fill { background: var(--green); }
+.prog-red    .progress-fill { background: var(--red); }
+.prog-purple .progress-fill { background: var(--purple); }
+
+/* ── 식단 아이템 ─────────────────────────── */
+.meal-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.meal-item:last-child { border-bottom: none; }
+
+.meal-name {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.meal-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.meal-kcal {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--orange);
+  white-space: nowrap;
+}
+
+/* AI 추천 식사 */
+.rec-meal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #e0f2fe;
+}
+.rec-meal:last-child { border-bottom: none; }
+.rec-meal-name   { font-size: 14px; font-weight: 700; }
+.rec-meal-reason { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.rec-meal-kcal   { font-size: 18px; font-weight: 800; color: var(--orange); white-space: nowrap; }
+
+/* ── 운동 아이템 ─────────────────────────── */
+.exercise-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.exercise-item:last-of-type { border-bottom: none; }
+
+.exercise-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.exercise-name {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.exercise-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.exercise-kcal {
+  margin-left: auto;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--red);
+  white-space: nowrap;
+}
+
+/* ── 공강 슬롯 카드 ─────────────────────── */
+.slot-card {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+}
+
+.slot-time {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.slot-exercises {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ── 산책 카드 ─────────────────────────── */
+.walk-card {
+  background: linear-gradient(135deg, #f0fdf4, #fff);
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.walk-stat {
+  display: flex;
+  gap: 0;
+  background: var(--bg);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.walk-stat-item {
+  flex: 1;
+  text-align: center;
+  padding: 12px 8px;
+  border-right: 1px solid var(--border);
+}
+
+.walk-stat-item:last-child { border-right: none; }
+
+.walk-stat-val {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--green);
+}
+
+.walk-stat-lbl {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ── 이벤트 아이템 (시간표) ──────────────── */
+.event-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.event-item:last-child { border-bottom: none; }
+
+.event-time {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 40px;
+  padding-top: 2px;
+}
+
+.event-title {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.event-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ── 인바디 그리드 ─────────────────────── */
+.inbody-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.inbody-item {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+}
+
+.inbody-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.inbody-lbl {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ── 위치 카드 ─────────────────────────── */
+.location-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--bg);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.location-name {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.location-addr {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* ── 설정 섹션 ─────────────────────────── */
+.settings-section {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.settings-title {
+  font-size: 17px;
+  font-weight: 800;
+  margin-bottom: 6px;
+}
