@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>식단 — 세얼간이</title>
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">🏃 세얼간이</a>
+    <div class="nav-links">
+      <a href="/"         class="nav-link">대시보드</a>
+      <a href="/diet"     class="nav-link active">🍽 식단</a>
+      <a href="/exercise" class="nav-link">🏋 운동</a>
+      <a href="/settings" class="nav-link">⚙️ 설정</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- 헤더 -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">🍽 식단 관리</div>
+      <div class="page-subtitle">음식 사진을 올리면 AI가 영양소를 자동으로 분석해드려요</div>
+    </div>
+    <div class="date-row">
+      <button class="date-nav-btn" onclick="prevDay()">‹</button>
+      <input type="date" id="dateInput" class="date-input" onchange="onDateChange(this.value)">
+      <button class="date-nav-btn" onclick="nextDay()">›</button>
+    </div>
+  </div>
+
+  <!-- 사진 업로드 -->
+  <div class="card mb-4">
+    <div class="card-label" style="margin-bottom:14px">📸 음식 사진 업로드</div>
+    <div class="upload-area" id="uploadArea">
+      <span class="upload-icon">📸</span>
+      <div class="upload-title">음식 사진을 올려주세요</div>
+      <div class="upload-sub">클릭하거나 드래그&드롭 · JPG · PNG</div>
+    </div>
+    <input type="file" id="fileInput" accept="image/*" style="display:none">
+    <div id="uploadResult"></div>
+  </div>
+
+  <!-- 영양소 요약 + 식단 목록 -->
+  <div class="grid-2">
+
+    <!-- 영양소 요약 -->
+    <div class="card" id="nutritionSummary">
+      <div class="loading-box"><div class="spinner"></div></div>
+    </div>
+
+    <!-- 오늘 식단 목록 -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-label">📋 오늘 식단 목록</div>
+      </div>
+      <div id="mealList">
+        <div class="loading-box"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- AI 식단 추천 -->
+  <div class="card">
+    <div class="flex-between mb-4">
+      <div class="card-label">🤖 다음 끼니 AI 추천</div>
+      <button class="btn btn-primary btn-sm" id="recommendBtn" onclick="getRecommend()">
+        🤖 AI 추천 받기
+      </button>
+    </div>
+    <div id="recommendResult">
+      <div class="empty-state">
+        <span class="empty-icon">🤖</span>
+        <div class="empty-text">버튼을 눌러 AI에게 다음 끼니를 추천받으세요<br>오늘 섭취 칼로리와 인바디 BMR을 분석합니다</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/diet.js"></script>
+</body>
+</html>

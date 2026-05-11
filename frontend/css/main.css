@@ -1,0 +1,191 @@
+/* =============================================
+   main.css — 레이아웃 / 타이포 / 변수
+   세얼간이 건강지킴이
+   ============================================= */
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --primary:        #3b82f6;
+  --primary-dark:   #2563eb;
+  --primary-light:  #eff6ff;
+  --green:          #22c55e;
+  --green-light:    #f0fdf4;
+  --orange:         #f97316;
+  --orange-light:   #fff7ed;
+  --red:            #ef4444;
+  --red-light:      #fef2f2;
+  --purple:         #a855f7;
+  --purple-light:   #faf5ff;
+  --yellow:         #eab308;
+  --yellow-light:   #fefce8;
+  --bg:             #f1f5f9;
+  --card:           #ffffff;
+  --text:           #0f172a;
+  --text-muted:     #64748b;
+  --border:         #e2e8f0;
+  --radius:         16px;
+  --shadow:         0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:      0 4px 12px rgba(0,0,0,.08);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Apple SD Gothic Neo',
+               'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 60px;
+}
+
+/* ── 내비게이션 ─────────────────────────────── */
+.nav {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+
+.nav-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  height: 58px;
+  gap: 8px;
+}
+
+.nav-logo {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary);
+  text-decoration: none;
+  margin-right: auto;
+  letter-spacing: -0.5px;
+}
+
+.nav-links { display: flex; gap: 4px; }
+
+.nav-link {
+  padding: 7px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: all .15s;
+}
+.nav-link:hover  { background: var(--bg); color: var(--text); }
+.nav-link.active { background: var(--primary-light); color: var(--primary); }
+
+/* ── 컨테이너 ─────────────────────────────── */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 28px 20px;
+}
+
+/* ── 페이지 헤더 ─────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+/* ── 그리드 ──────────────────────────────── */
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.grid-2-1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.grid-1-2 {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 800px) {
+  .grid-4    { grid-template-columns: repeat(2,1fr); }
+  .grid-3    { grid-template-columns: repeat(2,1fr); }
+  .grid-2-1  { grid-template-columns: 1fr; }
+  .grid-1-2  { grid-template-columns: 1fr; }
+  .input-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 500px) {
+  .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; }
+  .inbody-grid { grid-template-columns: repeat(2, 1fr); }
+  .nav-link { padding: 7px 10px; font-size: 13px; }
+}
+
+/* ── 유틸리티 ─────────────────────────────── */
+.mb-4  { margin-bottom: 16px; }
+.mb-6  { margin-bottom: 24px; }
+.mt-4  { margin-top: 16px; }
+.flex  { display: flex; }
+.flex-center  { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.text-muted { color: var(--text-muted); }
+.text-sm    { font-size: 14px; }
+.text-xs    { font-size: 12px; }
+.fw-600     { font-weight: 600; }
+.fw-700     { font-weight: 700; }
+.fw-800     { font-weight: 800; }
+.col-span-2 { grid-column: span 2; }
+
+/* ── 섹션 제목 ─────────────────────────────── */
+.section { margin-bottom: 28px; }
+
+.section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

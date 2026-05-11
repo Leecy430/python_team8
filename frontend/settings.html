@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>설정 — 세얼간이</title>
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="nav-logo">🏃 세얼간이</a>
+    <div class="nav-links">
+      <a href="/"         class="nav-link">대시보드</a>
+      <a href="/diet"     class="nav-link">🍽 식단</a>
+      <a href="/exercise" class="nav-link">🏋 운동</a>
+      <a href="/settings" class="nav-link active">⚙️ 설정</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container">
+
+  <div class="page-header">
+    <div>
+      <div class="page-title">⚙️ 설정</div>
+      <div class="page-subtitle">위치 · 시간표 · 인바디 데이터를 등록하세요</div>
+    </div>
+  </div>
+
+  <!-- ── 위치 설정 ─────────────────────────────── -->
+  <div class="settings-section">
+    <div class="settings-title">📍 위치 설정</div>
+    <p class="text-muted text-sm mb-4">집·학교·알바 위치를 등록하면 산책 경로 추천과 공강 운동 추천이 더 정확해져요.</p>
+
+    <!-- 저장된 위치 목록 -->
+    <div id="locationList" class="mb-4">
+      <div class="loading-box"><div class="spinner"></div></div>
+    </div>
+
+    <!-- 위치 추가 폼 -->
+    <div style="background:var(--bg);border-radius:12px;padding:16px">
+      <div class="card-label" style="margin-bottom:14px">➕ 위치 추가</div>
+
+      <div class="input-group">
+        <label class="input-label">장소 유형</label>
+        <select id="locName" class="input">
+          <option value="집">🏠 집</option>
+          <option value="학교">🏫 학교</option>
+          <option value="알바">💼 알바</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">주소</label>
+        <input type="text" id="locAddress" class="input" placeholder="예) 인천광역시 미추홀구 인하로 100">
+      </div>
+
+      <div class="input-row">
+        <div class="input-group">
+          <label class="input-label">위도 (lat)</label>
+          <input type="number" id="locLat" class="input" placeholder="37.4500" step="0.0001">
+        </div>
+        <div class="input-group">
+          <label class="input-label">경도 (lon)</label>
+          <input type="number" id="locLon" class="input" placeholder="126.6540" step="0.0001">
+        </div>
+      </div>
+
+      <div class="input-row">
+        <div class="input-group">
+          <label class="input-label">시작 시간 (선택)</label>
+          <input type="time" id="locStart" class="input">
+        </div>
+        <div class="input-group">
+          <label class="input-label">종료 시간 (선택)</label>
+          <input type="time" id="locEnd" class="input">
+        </div>
+      </div>
+
+      <div class="alert alert-info" style="margin-bottom:14px;font-size:13px">
+        💡 위도/경도는 <a href="https://map.kakao.com" target="_blank" style="color:var(--primary);font-weight:700">카카오맵</a>에서
+        우클릭 → "이 위치로" 선택 후 주소창 URL에서 확인할 수 있어요.
+      </div>
+
+      <button class="btn btn-primary btn-full" id="saveLocBtn" onclick="saveLocation()">
+        💾 위치 저장
+      </button>
+    </div>
+  </div>
+
+  <!-- ── 시간표 업로드 ───────────────────────────── -->
+  <div class="settings-section">
+    <div class="settings-title">📅 시간표 등록</div>
+    <p class="text-muted text-sm mb-4">에브리타임 시간표 스크린샷을 올리면 Claude AI가 자동으로 파싱해 저장합니다.</p>
+
+    <div class="upload-area" id="scheduleUploadArea">
+      <span class="upload-icon">📸</span>
+      <div class="upload-title">시간표 사진을 올려주세요</div>
+      <div class="upload-sub">에브리타임 스크린샷 등 · Claude AI가 자동 분석 · JPG · PNG</div>
+    </div>
+    <input type="file" id="scheduleFileInput" accept="image/*" style="display:none">
+
+    <div id="scheduleResult"></div>
+
+    <!-- 현재 시간표 미리보기 -->
+    <div style="margin-top:20px">
+      <div class="card-label" style="margin-bottom:10px">현재 등록된 시간표</div>
+      <div id="scheduleView">
+        <div class="loading-box"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 인바디 업로드 ───────────────────────────── -->
+  <div class="settings-section">
+    <div class="settings-title">⚖️ 인바디 데이터 등록</div>
+    <p class="text-muted text-sm mb-4">인바디 결과지 사진을 올리면 체중·골격근·체지방·BMR 등을 자동으로 추출합니다.</p>
+
+    <div class="upload-area" id="inbodyUploadArea">
+      <span class="upload-icon">📋</span>
+      <div class="upload-title">인바디 결과지 사진을 올려주세요</div>
+      <div class="upload-sub">Claude Vision AI가 자동으로 수치를 추출합니다</div>
+    </div>
+    <input type="file" id="inbodyFileInput" accept="image/*" style="display:none">
+
+    <div id="inbodyResult"></div>
+
+    <!-- 현재 인바디 데이터 -->
+    <div style="margin-top:20px">
+      <div class="card-label" style="margin-bottom:10px">현재 등록된 인바디 데이터</div>
+      <div id="inbodyView">
+        <div class="loading-box"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 앱 정보 ─────────────────────────────────── -->
+  <div class="settings-section">
+    <div class="settings-title">ℹ️ 앱 정보</div>
+    <div class="text-sm text-muted" style="line-height:1.8">
+      <div>🏃 <strong>세얼간이 건강지킴이</strong></div>
+      <div>👥 팀: 이창연 · 배주환 · 임서연</div>
+      <div>🛠 스택: Python · FastAPI · SQLite · Claude API</div>
+      <div>📡 데이터: 삼성헬스 CSV · WeatherAPI · Kakao Maps</div>
+      <div style="margin-top:12px">
+        서버 실행: <code style="background:var(--bg);padding:2px 8px;border-radius:6px;font-size:13px">uvicorn server:app --reload --port 8000</code>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/settings.js"></script>
+</body>
+</html>
