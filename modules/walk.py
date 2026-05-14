@@ -124,12 +124,20 @@ def get_walk_recommendation(date: str = None) -> dict:
     current_loc = locations.get(current_loc_name)
 
     route = None
-    if home and current_loc and current_loc_name != "집":
-        route = get_walk_route(
-            current_loc["lat"], current_loc["lon"],
-            home["lat"], home["lon"]
-        )
-
+    if home and current_loc:
+        if current_loc_name != "집":
+            route = get_walk_route(
+                current_loc["lat"], current_loc["lon"],
+                home["lat"], home["lon"]
+            )
+        else:
+            # 집에 있으면 학교까지 갔다오는 경로
+            school = locations.get("학교")
+            if school:
+                route = get_walk_route(
+                    home["lat"], home["lon"],
+                    school["lat"], school["lon"]
+                )
     # 예상 추가 걸음수 (1m ≈ 1.3걸음)
     extra_steps = int(route["distance_m"] * 1.3) if route else remaining
 
@@ -138,8 +146,8 @@ def get_walk_recommendation(date: str = None) -> dict:
         "reason": f"오늘 {today_steps:,}보 / 목표 {goal:,}보 ({remaining:,}보 부족)",
         "route": route,
         "extra_steps": extra_steps,
-        "from": current_loc_name,
-        "to": "집",
+        "from": "집" if current_loc_name == "집" else current_loc_name,
+        "to": "학교" if current_loc_name == "집" else "집",
     }
 
 def _dummy_route() -> dict:

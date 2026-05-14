@@ -161,9 +161,9 @@ if __name__ == "__main__":
     from pathlib import Path
 
     # ↓↓ 여기에 실제 CSV 파일 경로 입력 ↓↓
-    STEP_CSV  = "data/com.samsung.shealth.step_daily_trend.20260430122188.csv"
-    SLEEP_CSV = "data/com.samsung.shealth.sleep.20260430122188.csv"
-    HR_CSV    = "data/com.samsung.shealth.tracker.heart_rate.20260430122188.csv"
+    STEP_CSV  = "data/com.samsung.shealth.step_daily_trend.20260514122377.csv"
+    SLEEP_CSV = "data/com.samsung.shealth.sleep.20260514122377.csv"
+    HR_CSV    = "data/com.samsung.shealth.tracker.heart_rate.20260514122377.csv"
     
     if Path(STEP_CSV).exists():
         load_steps(STEP_CSV)

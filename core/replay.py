@@ -23,7 +23,7 @@ def get_today_sleep(date=None):
     row = conn.execute("""
         SELECT date, duration_min, sleep_score, efficiency,
                physical_recovery, mental_recovery, total_rem_min
-        FROM sleep WHERE date <= ?
+        FROM sleep WHERE date = ?
         ORDER BY date DESC, duration_min DESC LIMIT 1
     """, (date,)).fetchone()
     conn.close()

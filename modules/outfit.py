@@ -33,9 +33,6 @@ def get_outfit_recommendation(location: str = "Michuhol-gu, Incheon") -> dict:
     load_dotenv(override=True)
     api_key = os.getenv("ANTHROPIC_API_KEY").strip()
     client = anthropic.Anthropic(api_key=api_key)
-    """
-    시간표 + 캘린더 + 시간대별 날씨 기반 옷차림 추천
-    """
     now = datetime.now(tz=KST)
     today = now.strftime('%Y-%m-%d')
     day_of_week = now.weekday()

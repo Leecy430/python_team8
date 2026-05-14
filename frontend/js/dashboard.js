@@ -191,8 +191,8 @@ function renderWalk(ok, msg) {
   if (!ok) {
     el.innerHTML = `
       <div class="card-label">🚶 산책</div>
-      <div style="margin-top:12px;font-size:28px;text-align:center">🎉</div>
-      <div style="text-align:center;margin-top:8px;font-weight:700;color:var(--green)">목표 달성!</div>
+      <div style="margin-top:12px;font-size:28px;text-align:center"></div>
+      <div style="text-align:center;margin-top:8px;font-weight:700;color:var(--green)">목표 달성 실패!</div>
       <div style="text-align:center;font-size:13px;color:var(--text-muted);margin-top:4px">${msg}</div>`;
     return;
   }
