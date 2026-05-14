@@ -95,7 +95,7 @@ def dashboard(date: str = None):
         "heart_rate": snap["heart_rate"],
         "inbody":     snap["inbody"],
         "weather":    weather,
-        "walk_ok":    not walk.get("recommend", True),
+        "walk_ok":    walk.get("recommend", False),
         "walk_msg":   walk.get("reason", ""),
     }
 
@@ -274,6 +274,8 @@ async def upload_inbody_photo(file: UploadFile = File(...)):
 
 @app.get("/api/outfit")
 def outfit(location: str = None):
+    if location is None:
+        location = "Michuhol-gu, Incheon"
     try:
         return get_outfit_recommendation(location)
     except Exception as e:
