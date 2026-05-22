@@ -280,3 +280,15 @@ def outfit(location: str = None):
         return get_outfit_recommendation(location)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+from pydantic import BaseModel
+
+class RealtimeHealthData(BaseModel):
+    steps: int
+    heart_rate: float
+    sleep_minutes: int
+
+@app.post("/health/realtime")
+async def receive_realtime_health(data: RealtimeHealthData):
+    print(f"수신된 데이터: 걸음수={data.steps}, 심박수={data.heart_rate}, 수면={data.sleep_minutes}분")
+    return {"status": "ok", "received": data.dict()}
