@@ -24,9 +24,10 @@ from modules.diet import get_diet_recommendation
 from modules.exercise import get_exercise_recommendation, get_free_slot_exercise, save_exercise
 from modules.weather import get_current_weather
 from modules.walk import get_walk_recommendation, set_location, get_locations
-from modules.schedule import parse_schedule_from_image, save_schedule, get_schedule, get_free_slots
+from modules.schedule import parse_schedule_from_image, save_schedule, get_schedule, get_free_slots, get_today_schedule
 from modules.outfit import get_outfit_recommendation
 from modules.inbody import process_inbody_image
+
 
 KST = timezone(timedelta(hours=9))
 UPLOAD_DIR = Path("uploads")
@@ -248,6 +249,10 @@ def schedule_free_slots():
     day = datetime.now(tz=KST).weekday()
     return {"free_slots": get_free_slots(), "day": day}
 
+@app.get("/today-schedule") # 추가
+def today_schedule(date: str = None):
+    return get_today_schedule(date)
+
 # ════════════════════════════════════════════════════════
 # 인바디
 # ════════════════════════════════════════════════════════
@@ -292,3 +297,8 @@ class RealtimeHealthData(BaseModel):
 async def receive_realtime_health(data: RealtimeHealthData):
     print(f"수신된 데이터: 걸음수={data.steps}, 심박수={data.heart_rate}, 수면={data.sleep_minutes}분")
     return {"status": "ok", "received": data.dict()}
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

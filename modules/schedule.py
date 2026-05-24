@@ -3,6 +3,9 @@ import base64
 import json
 from core.database import get_conn
 import os
+
+from datetime import datetime # 추가...
+
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
@@ -66,6 +69,11 @@ def save_schedule(schedule_list):
     """파싱된 시간표 DB에 저장"""
     conn = get_conn()
     conn.execute("DELETE FROM schedule")  # 기존 시간표 초기화
+
+    for s in schedule_list:
+        if 'professor' not in s:
+            s['professor'] = None # 추가...
+
     conn.executemany("""
         INSERT INTO schedule (day_of_week, start_time, end_time, subject, professor, classroom)
         VALUES (:day_of_week, :start_time, :end_time, :subject, :professor, :classroom)
@@ -84,6 +92,52 @@ def get_schedule():
     conn.close()
     days = ['월','화','수','목','금']
     return [dict(zip(['day_of_week','start_time','end_time','subject','professor','classroom'], r)) for r in rows]
+
+# ---------------------------추가-------------
+def get_today_schedule(date=None):
+
+    # 날짜가 전달되면 그 날짜 사용
+    if date:
+        target_date = datetime.strptime(date, "%Y-%m-%d")
+        today_weekday = target_date.weekday()
+
+    # 없으면 실제 오늘 날짜 사용
+    else:
+        today_weekday = datetime.today().weekday()
+
+    days = ['월', '화', '수', '목', '금', '토', '일']
+    day_name = days[today_weekday]
+
+    if today_weekday > 4:
+        return {
+            "day_name": day_name,
+            "classes": []
+        }
+
+    conn = get_conn()
+
+    rows = conn.execute("""
+        SELECT start_time, end_time, subject, classroom
+        FROM schedule
+        WHERE day_of_week = ?
+        ORDER BY start_time
+    """, (today_weekday,)).fetchall()
+
+    conn.close()
+
+    classes = [
+        dict(zip(
+            ['start_time', 'end_time', 'subject', 'classroom'],
+            r
+        ))
+        for r in rows
+    ]
+
+    return {
+        "day_name": day_name,
+        "classes": classes
+    }
+# --------------------------추가----------------
 
 def get_free_slots():
     """30분 이상 공강 탐색"""
