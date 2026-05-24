@@ -3,6 +3,7 @@
    ============================================= */
 
 let currentDate = today();
+console.log("dashboard.js 실행됨");
 
 // ── 초기화 ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -246,43 +247,75 @@ async function loadMeals() {
   }
 }
 
+
 // ── 시간표 ─────────────────────────────────────
 async function loadSchedule() {
   const el = document.getElementById('schedule-card');
   el.innerHTML = '<div class="loading-box"><div class="spinner"></div></div>';
 
   try {
-    const { schedule } = await API.getSchedule();
-    const days = ['월','화','수','목','금'];
-    const kstNow = new Date(Date.now() + 9*60*60*1000);
-    const dayOfWeek = (kstNow.getUTCDay() + 6) % 7; // 0=월
-    const todayStr = days[dayOfWeek];
 
-    const todayClasses = schedule.filter(s => s.day_of_week === dayOfWeek);
+    const data = await API.getTodaySchedule(currentDate);
+
+    const todayStr = data.day_name;
+    const todayClasses = data.classes;
 
     el.innerHTML = `
       <div class="card-header">
         <div class="card-label">📅 오늘 시간표 (${todayStr})</div>
         <a href="/settings" class="btn btn-secondary btn-xs">편집 →</a>
       </div>
+
       ${todayClasses.length === 0
+
         ? '<div class="empty-state" style="padding:16px"><span class="empty-icon">📭</span><div class="empty-text">오늘 수업 없음</div></div>'
+
         : todayClasses.map(c => `
+
           <div class="event-item">
-            <div class="event-time">${c.start_time}</div>
-            <div>
-              <div class="event-title">${c.subject}</div>
-              <div class="event-sub">${c.classroom || ''} ${c.professor ? '· '+c.professor : ''}</div>
+
+            <div class="event-time">
+              ${c.start_time} ~ ${c.end_time}
             </div>
-          </div>`).join('')
+
+            <div>
+
+              <div class="event-title">
+                ${c.subject}
+              </div>
+
+              <div class="event-sub">
+                ${c.classroom || ''}
+              </div>
+
+            </div>
+
+          </div>
+
+        `).join('')
       }`;
+
   } catch(e) {
+
     el.innerHTML = `
       <div class="card-header"><div class="card-label">📅 시간표</div></div>
+
       <div class="empty-state" style="padding:16px">
+
         <span class="empty-icon">📸</span>
-        <div class="empty-text">시간표를 등록해주세요</div>
-        <a href="/settings" class="btn btn-primary btn-sm" style="margin-top:12px">등록하러 가기</a>
+
+        <div class="empty-text">
+          시간표를 등록해주세요
+        </div>
+
+        <a href="/settings"
+           class="btn btn-primary btn-sm"
+           style="margin-top:12px">
+
+          등록하러 가기
+
+        </a>
+
       </div>`;
   }
 }

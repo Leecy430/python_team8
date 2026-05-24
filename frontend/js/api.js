@@ -128,6 +128,13 @@ const API = {
     return this._get('/api/schedule');
   },
 
+
+ getTodaySchedule(date = null) {
+    const q = date ? `?date=${date}` : '';
+    return this._get(`/today-schedule${q}`);
+  },
+
+  
   getScheduleFreeSlots() {
     return this._get('/api/schedule/free-slots');
   },
