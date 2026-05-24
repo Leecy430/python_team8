@@ -17,7 +17,7 @@ from pathlib import Path
 from datetime import datetime, timezone, timedelta
 
 # 모듈 임포트
-from core.database import init_db
+from core.database import init_db, get_conn
 from core.replay import get_snapshot, get_steps_timeseries, get_sleep_timeseries, get_heartrate_timeseries, get_all_dates
 from modules.nutrition import process_food_image, get_today_meals, get_today_nutrition_summary
 from modules.diet import get_diet_recommendation
@@ -295,7 +295,44 @@ class RealtimeHealthData(BaseModel):
 
 @app.post("/health/realtime")
 async def receive_realtime_health(data: RealtimeHealthData):
-    print(f"수신된 데이터: 걸음수={data.steps}, 심박수={data.heart_rate}, 수면={data.sleep_minutes}분")
+    now_kst = datetime.now(tz=KST)
+    date_str = now_kst.strftime("%Y-%m-%d")
+    datetime_str = now_kst.strftime("%Y-%m-%d %H:%M:%S")
+
+    conn = get_conn()
+    cur = conn.cursor()
+
+    # 걸음수 저장 (오늘 날짜로 upsert)
+    if data.steps > 0:
+        cur.execute("""
+            INSERT INTO steps_daily (date, count, distance_m, calorie)
+            VALUES (?, ?, 0, 0)
+            ON CONFLICT(date) DO UPDATE SET count=excluded.count
+        """, (date_str, data.steps))
+
+    # 심박수 저장
+    if data.heart_rate > 0:
+        cur.execute("""
+            INSERT INTO heart_rate (datetime, bpm, bpm_min, bpm_max, tag)
+            VALUES (?, ?, ?, ?, ?)
+        """, (datetime_str, int(data.heart_rate), int(data.heart_rate), int(data.heart_rate), "realtime"))
+
+    # 수면 저장 (오늘 realtime 태그로, 중복 방지)
+    if data.sleep_minutes > 0:
+        cur.execute("""
+            SELECT id FROM sleep WHERE date=? AND start_time='realtime'
+        """, (date_str,))
+        existing = cur.fetchone()
+        if not existing:
+            cur.execute("""
+                INSERT INTO sleep (date, start_time, end_time, duration_min)
+                VALUES (?, 'realtime', 'realtime', ?)
+            """, (date_str, data.sleep_minutes))
+
+    conn.commit()
+    conn.close()
+
+    print(f"저장완료: 걸음수={data.steps}, 심박수={data.heart_rate}, 수면={data.sleep_minutes}분")
     return {"status": "ok", "received": data.dict()}
 
 
