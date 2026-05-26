@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
 
+
 # 모듈 임포트
 from core.database import init_db, get_conn
 from core.replay import get_snapshot, get_steps_timeseries, get_sleep_timeseries, get_heartrate_timeseries, get_all_dates
@@ -27,6 +28,8 @@ from modules.walk import get_walk_recommendation, set_location, get_locations
 from modules.schedule import parse_schedule_from_image, save_schedule, get_schedule, get_free_slots, get_today_schedule
 from modules.outfit import get_outfit_recommendation
 from modules.inbody import process_inbody_image
+from apscheduler.schedulers.background import BackgroundScheduler
+from modules.calendar_sync import sync_calendar
 
 
 KST = timezone(timedelta(hours=9))
@@ -52,8 +55,20 @@ if Path("frontend").exists():
 @app.on_event("startup")
 def startup():
     init_db()
+    
+    # 캘린더 즉시 sync
+    try:
+        count = sync_calendar()
+        print(f"✅ 캘린더 sync 완료 ({count}개)")
+    except Exception as e:
+        print(f"⚠️ 캘린더 sync 실패: {e}")
+    
+    # 매일 06:00 KST 자동 sync
+    scheduler = BackgroundScheduler(timezone="Asia/Seoul")
+    scheduler.add_job(sync_calendar, 'cron', hour=6, minute=0)
+    scheduler.start()
+    
     print("✅ 서버 시작 완료")
-
 # ── 메인 페이지 ──────────────────────────────────────────
 
 @app.get("/")
