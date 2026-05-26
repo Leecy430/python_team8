@@ -292,6 +292,8 @@ class RealtimeHealthData(BaseModel):
     steps: int
     heart_rate: float
     sleep_minutes: int
+    sleep_start: str = ""
+    sleep_end: str = ""
 
 @app.post("/health/realtime")
 async def receive_realtime_health(data: RealtimeHealthData):
@@ -302,37 +304,37 @@ async def receive_realtime_health(data: RealtimeHealthData):
     conn = get_conn()
     cur = conn.cursor()
 
-    # 걸음수 저장 (오늘 날짜로 upsert)
-    if data.steps > 0:
+    # 걸음수 저장 (0 이상이면 저장)
+    if data.steps >= 0:
         cur.execute("""
             INSERT INTO steps_daily (date, count, distance_m, calorie)
             VALUES (?, ?, 0, 0)
             ON CONFLICT(date) DO UPDATE SET count=excluded.count
         """, (date_str, data.steps))
 
-    # 심박수 저장
+    # 심박수 저장 (0보다 클 때만)
     if data.heart_rate > 0:
         cur.execute("""
             INSERT INTO heart_rate (datetime, bpm, bpm_min, bpm_max, tag)
             VALUES (?, ?, ?, ?, ?)
         """, (datetime_str, int(data.heart_rate), int(data.heart_rate), int(data.heart_rate), "realtime"))
 
-    # 수면 저장 (오늘 realtime 태그로, 중복 방지)
-    if data.sleep_minutes > 0:
+    # 수면 저장 (0보다 클 때만)
+    if data.sleep_minutes > 0 and data.sleep_start:
         cur.execute("""
-            SELECT id FROM sleep WHERE date=? AND start_time='realtime'
-        """, (date_str,))
+            SELECT id FROM sleep WHERE date=? AND start_time=?
+        """, (date_str, data.sleep_start))
         existing = cur.fetchone()
         if not existing:
             cur.execute("""
                 INSERT INTO sleep (date, start_time, end_time, duration_min)
-                VALUES (?, 'realtime', 'realtime', ?)
-            """, (date_str, data.sleep_minutes))
+                VALUES (?, ?, ?, ?)
+            """, (date_str, data.sleep_start, data.sleep_end, data.sleep_minutes))
 
     conn.commit()
     conn.close()
 
-    print(f"저장완료: 걸음수={data.steps}, 심박수={data.heart_rate}, 수면={data.sleep_minutes}분")
+    print(f"저장완료: 걸음수={data.steps}, 심박수={data.heart_rate}, 수면={data.sleep_minutes}분, {data.sleep_start}~{data.sleep_end}")
     return {"status": "ok", "received": data.dict()}
 
 
