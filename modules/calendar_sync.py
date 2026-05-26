@@ -16,8 +16,8 @@ load_dotenv(override=True)
 KST = timezone(timedelta(hours=9))
 
 ICS_URLS = [
-    os.getenv("GOOGLE_CALENDAR_ICS_URL_1", "https://calendar.google.com/calendar/ical/leecy430%40gmail.com/private-7f4b243e0ef558985f424fc0daa52c21/basic.ics"),
-    os.getenv("GOOGLE_CALENDAR_ICS_URL_2", "https://calendar.google.com/calendar/ical/ko.south_korea%23holiday%40group.v.calendar.google.com/public/basic.ics"),
+    os.getenv("GOOGLE_CALENDAR_ICS_URL_1", "..."),
+    os.getenv("GOOGLE_CALENDAR_ICS_URL_2", "..."),
 ]
 
 def fetch_ics(url: str) -> bytes:
