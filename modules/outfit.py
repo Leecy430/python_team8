@@ -15,6 +15,8 @@ from modules.calendar_sync import get_today_events
 load_dotenv(override=True)
 KST = timezone(timedelta(hours=9))
 
+_outfit_cache: dict = {}  # { "YYYY-MM-DD": result }
+
 def get_today_schedule(day_of_week: int = None) -> list[dict]:
     """시간표에서 오늘 수업 목록 반환"""
     if day_of_week is None:
@@ -31,10 +33,14 @@ def get_today_schedule(day_of_week: int = None) -> list[dict]:
 
 def get_outfit_recommendation(location: str = "Michuhol-gu, Incheon") -> dict:
     load_dotenv(override=True)
-    api_key = os.getenv("ANTHROPIC_API_KEY").strip()
-    client = anthropic.Anthropic(api_key=api_key)
     now = datetime.now(tz=KST)
     today = now.strftime('%Y-%m-%d')
+
+    if today in _outfit_cache:
+        return _outfit_cache[today]
+
+    api_key = os.getenv("ANTHROPIC_API_KEY").strip()
+    client = anthropic.Anthropic(api_key=api_key)
     day_of_week = now.weekday()
     days = ['월', '화', '수', '목', '금', '토', '일']
 
@@ -146,4 +152,5 @@ def get_outfit_recommendation(location: str = "Michuhol-gu, Incheon") -> dict:
     result["events"] = all_events
     result["dep_weather"] = dep_weather
     result["arr_weather"] = arr_weather
+    _outfit_cache[today] = result
     return result
