@@ -3,6 +3,7 @@
    ============================================= */
 
 let currentDate = today();
+let scheduleDate = today();
 console.log("dashboard.js 실행됨");
 
 // ── 초기화 ─────────────────────────────────────
@@ -12,10 +13,18 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function loadAll() {
+  scheduleDate = currentDate;
   loadDashboard();
   loadMeals();
   loadSchedule();
   loadOutfit();
+}
+
+function moveScheduleDay(dir) {
+  const d = new Date(scheduleDate);
+  d.setDate(d.getDate() + dir);
+  scheduleDate = d.toISOString().split('T')[0];
+  loadSchedule();
 }
 
 // ── 날짜 이동 ───────────────────────────────────
@@ -255,14 +264,18 @@ async function loadSchedule() {
 
   try {
 
-    const data = await API.getTodaySchedule(currentDate);
+    const data = await API.getTodaySchedule(scheduleDate);
 
     const todayStr = data.day_name;
     const todayClasses = data.classes;
 
     el.innerHTML = `
       <div class="card-header">
-        <div class="card-label">📅 오늘 시간표 (${todayStr})</div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <button class="date-nav-btn" style="width:24px;height:24px;font-size:14px" onclick="moveScheduleDay(-1)">‹</button>
+          <div class="card-label">📅 ${todayStr} 시간표</div>
+          <button class="date-nav-btn" style="width:24px;height:24px;font-size:14px" onclick="moveScheduleDay(1)">›</button>
+        </div>
         <a href="/settings" class="btn btn-secondary btn-xs">편집 →</a>
       </div>
 
