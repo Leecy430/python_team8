@@ -58,22 +58,30 @@ def get_outfit_recommendation(location: str = "Michuhol-gu, Incheon") -> dict:
             "type":  "수업"
         })
     for c in calendar:
+        start = c["start_time"]
+        end   = c["end_time"]
+        start = start[11:16] if len(start) > 10 else "종일"
+        end   = end[11:16]   if len(end) > 10   else "종일"
         all_events.append({
             "title": c["title"],
-            "start": c["start_time"][-5:],
-            "end":   c["end_time"][-5:],
+            "start": start,
+            "end":   end,
             "type":  "일정"
         })
-    all_events.sort(key=lambda x: x["start"])
+    all_events.sort(key=lambda x: x["start"] if x["start"] != "종일" else "00:00")
 
-    if not all_events:
+    # 출발/귀가 시간 계산은 종일 일정 제외
+    timed_events = [e for e in all_events if e["start"] != "종일"]
+
+    if not timed_events:
         return {
             "has_events": False,
-            "message": f"오늘({days[day_of_week]})은 일정이 없어요!",
+            "message": f"오늘({days[day_of_week]})은 일정이 없어요!" if not all_events
+                       else f"오늘({days[day_of_week]})은 종일 일정만 있어요!",
         }
 
-    first_event = all_events[0]
-    last_event  = all_events[-1]
+    first_event = timed_events[0]
+    last_event  = timed_events[-1]
 
     h, m = map(int, first_event["start"].split(":"))
     dep_total = h * 60 + m - 30
