@@ -278,10 +278,13 @@ async function loadSchedule() {
               ${c.start_time} ~ ${c.end_time}
             </div>
 
-            <div>
+            <div style="flex:1">
 
-              <div class="event-title">
+              <div class="event-title" style="display:flex;align-items:center;gap:6px">
                 ${c.subject}
+                <span style="font-size:10px;padding:1px 6px;border-radius:8px;font-weight:600;
+                  background:${c.type === '일정' ? 'var(--primary)' : 'var(--green)'};
+                  color:#fff;opacity:0.85">${c.type || '수업'}</span>
               </div>
 
               <div class="event-sub">

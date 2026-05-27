@@ -95,48 +95,50 @@ def get_schedule():
 
 # ---------------------------추가-------------
 def get_today_schedule(date=None):
+    from modules.calendar_sync import get_today_events
 
-    # 날짜가 전달되면 그 날짜 사용
     if date:
         target_date = datetime.strptime(date, "%Y-%m-%d")
         today_weekday = target_date.weekday()
-
-    # 없으면 실제 오늘 날짜 사용
+        date_str = date
     else:
-        today_weekday = datetime.today().weekday()
+        today_dt = datetime.today()
+        today_weekday = today_dt.weekday()
+        date_str = today_dt.strftime("%Y-%m-%d")
 
     days = ['월', '화', '수', '목', '금', '토', '일']
     day_name = days[today_weekday]
 
-    if today_weekday > 4:
-        return {
-            "day_name": day_name,
-            "classes": []
-        }
+    classes = []
+    if today_weekday <= 4:
+        conn = get_conn()
+        rows = conn.execute("""
+            SELECT start_time, end_time, subject, classroom
+            FROM schedule WHERE day_of_week = ?
+            ORDER BY start_time
+        """, (today_weekday,)).fetchall()
+        conn.close()
+        classes = [
+            {**dict(zip(['start_time', 'end_time', 'subject', 'classroom'], r)), 'type': '수업'}
+            for r in rows
+        ]
 
-    conn = get_conn()
+    for e in get_today_events(date_str):
+        start = e['start_time']
+        end   = e['end_time']
+        start = start[11:16] if len(start) > 10 else "종일"
+        end   = end[11:16]   if len(end) > 10   else ""
+        classes.append({
+            'start_time': start,
+            'end_time':   end,
+            'subject':    e['title'],
+            'classroom':  e.get('location', ''),
+            'type':       '일정'
+        })
 
-    rows = conn.execute("""
-        SELECT start_time, end_time, subject, classroom
-        FROM schedule
-        WHERE day_of_week = ?
-        ORDER BY start_time
-    """, (today_weekday,)).fetchall()
+    classes.sort(key=lambda x: x['start_time'] if x['start_time'] != '종일' else '00:00')
 
-    conn.close()
-
-    classes = [
-        dict(zip(
-            ['start_time', 'end_time', 'subject', 'classroom'],
-            r
-        ))
-        for r in rows
-    ]
-
-    return {
-        "day_name": day_name,
-        "classes": classes
-    }
+    return {"day_name": day_name, "classes": classes}
 # --------------------------추가----------------
 
 def get_free_slots():
