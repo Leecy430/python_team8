@@ -80,10 +80,20 @@ def get_walk_route(origin_lat: float, origin_lon: float,
         )
         data = res.json()
         route = data["routes"][0]["summary"]
+
+        # 경로 좌표 추출 (지도 폴리라인용)
+        path = []
+        for section in data["routes"][0].get("sections", []):
+            for road in section.get("roads", []):
+                vs = road.get("vertexes", [])
+                for i in range(0, len(vs) - 1, 2):
+                    path.append({"lng": vs[i], "lat": vs[i+1]})
+
         return {
             "distance_m":   route["distance"],
             "duration_min": route["duration"] // 60,
             "taxi_fare":    route.get("fare", {}).get("taxi", 0),
+            "path":         path,
         }
     except Exception as e:
         print(f"Kakao Maps 오류: {e}")
@@ -123,31 +133,32 @@ def get_walk_recommendation(date: str = None) -> dict:
     current_loc_name = get_current_location_name()
     current_loc = locations.get(current_loc_name)
 
+    # 현재 집에 있으면 학교를 출발지로 대체 (퇴근길 경로 미리 보기)
+    if current_loc_name == "집" and "학교" in locations:
+        current_loc = locations["학교"]
+        current_loc_name = "학교"
+
     route = None
-    if home and current_loc:
-        if current_loc_name != "집":
-            route = get_walk_route(
-                current_loc["lat"], current_loc["lon"],
-                home["lat"], home["lon"]
-            )
-        else:
-            # 집에 있으면 학교까지 갔다오는 경로
-            school = locations.get("학교")
-            if school:
-                route = get_walk_route(
-                    home["lat"], home["lon"],
-                    school["lat"], school["lon"]
-                )
+    if home and current_loc and current_loc_name != "집":
+        route = get_walk_route(
+            current_loc["lat"], current_loc["lon"],
+            home["lat"], home["lon"]
+        )
+
     # 예상 추가 걸음수 (1m ≈ 1.3걸음)
     extra_steps = int(route["distance_m"] * 1.3) if route else remaining
 
     return {
-        "recommend": True,
-        "reason": f"오늘 {today_steps:,}보 / 목표 {goal:,}보 ({remaining:,}보 부족)",
-        "route": route,
-        "extra_steps": extra_steps,
-        "from": "집" if current_loc_name == "집" else current_loc_name,
-        "to": "학교" if current_loc_name == "집" else "집",
+        "recommend":    True,
+        "reason":       f"오늘 {today_steps:,}보 / 목표 {goal:,}보 ({remaining:,}보 부족)",
+        "route":        route,
+        "extra_steps":  extra_steps,
+        "from":         current_loc_name,
+        "to":           "집",
+        "origin_lat":   current_loc["lat"] if current_loc else None,
+        "origin_lon":   current_loc["lon"] if current_loc else None,
+        "dest_lat":     home["lat"] if home else None,
+        "dest_lon":     home["lon"] if home else None,
     }
 
 def _dummy_route() -> dict:
