@@ -23,6 +23,19 @@ const API = {
     return res.json();
   },
 
+  async _postJSON(path, data) {
+    const res = await fetch(this.base + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(err.detail || '요청 실패');
+    }
+    return res.json();
+  },
+
   async _postParams(path) {
     const res = await fetch(this.base + path, { method: 'POST' });
     if (!res.ok) {
@@ -154,6 +167,11 @@ const API = {
     const fd = new FormData();
     fd.append('file', file);
     return this._post('/api/inbody/photo', fd);
+  },
+
+  // ── 피드백 ───────────────────────────────
+  submitFeedback(type, rating, content, context = '') {
+    return this._postJSON('/api/feedback', { type, rating, content, context });
   },
 
   // ── 옷차림 ───────────────────────────────

@@ -19,6 +19,7 @@ from datetime import datetime, timezone, timedelta
 
 # 모듈 임포트
 from core.database import init_db, get_conn
+from core.feedback_db import init_feedback_db, save_feedback
 from core.replay import get_snapshot, get_steps_timeseries, get_sleep_timeseries, get_heartrate_timeseries, get_all_dates
 from modules.nutrition import process_food_image, get_today_meals, get_today_nutrition_summary
 from modules.diet import get_diet_recommendation
@@ -55,6 +56,7 @@ if Path("frontend").exists():
 @app.on_event("startup")
 def startup():
     init_db()
+    init_feedback_db()
     
     # 캘린더 즉시 sync
     try:
@@ -302,6 +304,21 @@ def outfit(location: str = None):
         raise HTTPException(status_code=500, detail=str(e))
     
 from pydantic import BaseModel
+
+# ════════════════════════════════════════════════════════
+# 피드백
+# ════════════════════════════════════════════════════════
+
+class FeedbackRequest(BaseModel):
+    type: str       # 'exercise_routine' | 'exercise_slot' | 'diet'
+    rating: str     # 'bad' | 'good'
+    content: str    # 피드백 텍스트
+    context: str = ""
+
+@app.post("/api/feedback")
+def submit_feedback(data: FeedbackRequest):
+    save_feedback(data.type, data.rating, data.content, data.context)
+    return {"success": True}
 
 class RealtimeHealthData(BaseModel):
     steps: int
