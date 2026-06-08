@@ -90,6 +90,7 @@
 <div id="toast" class="toast"></div>
 
 <script src="/static/js/api.js"></script>
+<script src="/static/js/dummy_notifs.js"></script>
 <script>
   const PT_KEY = 'pt_history_v3';
 
@@ -245,6 +246,7 @@
     lucide.createIcons();
     initHome();
     initSSE();
+    sendDummyNotifs();
   });
 </script>
 </body>

@@ -64,6 +64,21 @@
         <div class="upload-sub">클릭하거나 드래그&드롭 · JPG · PNG</div>
       </div>
       <input type="file" id="fileInput" accept="image/*" style="display:none">
+
+      <!-- 추가 설명 영역 — 사진 선택 후에만 표시 -->
+      <div id="descriptionArea" style="display:none;margin-top:12px;">
+        <div style="font-size:13px;font-weight:600;color:var(--text-muted);margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+          <i data-lucide="message-square" style="width:14px;height:14px;"></i> 추가 설명 <span style="font-weight:400;font-size:12px;">(선택사항)</span>
+        </div>
+        <textarea id="foodDescription" class="input" rows="3"
+          placeholder="예) 비빔밥이에요 밥은 반 공기 정도 / 스타벅스 아이스 아메리카노 톨 사이즈 / 삼겹살 200g 쌈 포함"
+          style="resize:none;width:100%;box-sizing:border-box;margin-bottom:10px;"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button class="btn btn-secondary btn-sm" onclick="cancelUpload()">취소</button>
+          <button class="btn btn-primary btn-sm" onclick="confirmUpload()">AI 분석하기</button>
+        </div>
+      </div>
+
       <div id="uploadResult"></div>
     </div>
 

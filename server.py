@@ -7,7 +7,7 @@ FastAPI 백엔드 서버 - 모든 모듈 연결
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, Form
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -173,12 +173,12 @@ def heartrate(date: str = None):
 # ════════════════════════════════════════════════════════
 
 @app.post("/api/meals/photo")
-async def upload_food_photo(file: UploadFile = File(...)):
+async def upload_food_photo(file: UploadFile = File(...), description: str = Form("")):
     path = UPLOAD_DIR / file.filename
     with open(path, "wb") as f:
         shutil.copyfileobj(file.file, f)
     try:
-        results = process_food_image(str(path))
+        results = process_food_image(str(path), description=description)
         return {"success": True, "foods": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

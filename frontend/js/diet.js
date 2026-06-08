@@ -34,6 +34,8 @@ function onDateChange(val) {
 }
 
 // ── 사진 업로드 ─────────────────────────────────
+let _pendingFile = null;
+
 function setupUpload() {
   const area = document.getElementById('uploadArea');
   const input = document.getElementById('fileInput');
@@ -49,17 +51,54 @@ function setupUpload() {
     e.preventDefault();
     area.classList.remove('drag-over');
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) uploadFood(file);
+    if (file && file.type.startsWith('image/')) showDescriptionArea(file);
   });
 
   area.addEventListener('click', () => input.click());
 
   input.addEventListener('change', e => {
-    if (e.target.files[0]) uploadFood(e.target.files[0]);
+    if (e.target.files[0]) showDescriptionArea(e.target.files[0]);
+    input.value = '';
   });
 }
 
-async function uploadFood(file) {
+function showDescriptionArea(file) {
+  _pendingFile = file;
+  const area = document.getElementById('uploadArea');
+  const descArea = document.getElementById('descriptionArea');
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    area.innerHTML = `<img src="${e.target.result}" style="max-height:160px;border-radius:8px;object-fit:cover;display:block;margin:0 auto;">`;
+  };
+  reader.readAsDataURL(file);
+
+  document.getElementById('foodDescription').value = '';
+  descArea.style.display = 'block';
+  lucide.createIcons();
+}
+
+function cancelUpload() {
+  _pendingFile = null;
+  document.getElementById('descriptionArea').style.display = 'none';
+  document.getElementById('foodDescription').value = '';
+  document.getElementById('uploadArea').innerHTML = `
+    <span class="upload-icon">📸</span>
+    <div class="upload-title">음식 사진을 올려주세요</div>
+    <div class="upload-sub">클릭하거나 드래그하여 업로드 · JPG · PNG</div>`;
+}
+
+async function confirmUpload() {
+  if (!_pendingFile) return;
+  const description = document.getElementById('foodDescription').value.trim();
+  const file = _pendingFile;
+  _pendingFile = null;
+  document.getElementById('descriptionArea').style.display = 'none';
+  document.getElementById('foodDescription').value = '';
+  await uploadFood(file, description);
+}
+
+async function uploadFood(file, description = '') {
   const area = document.getElementById('uploadArea');
   const result = document.getElementById('uploadResult');
 
@@ -67,7 +106,7 @@ async function uploadFood(file) {
   result.innerHTML = '';
 
   try {
-    const data = await API.uploadFoodPhoto(file);
+    const data = await API.uploadFoodPhoto(file, description);
 
     if (data.success && data.foods && data.foods.length > 0) {
       showToast('✅ 식단이 저장되었습니다!');

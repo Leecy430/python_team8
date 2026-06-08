@@ -92,9 +92,10 @@ const API = {
     return this._get(`/api/meals/recommend${q}`);
   },
 
-  uploadFoodPhoto(file) {
+  uploadFoodPhoto(file, description = '') {
     const fd = new FormData();
     fd.append('file', file);
+    if (description) fd.append('description', description);
     return this._post('/api/meals/photo', fd);
   },
 

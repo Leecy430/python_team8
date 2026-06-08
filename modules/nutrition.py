@@ -20,7 +20,7 @@ FOOD_DB_PATH = "db/static_food.db"
 
 # ── 이미지 → 음식 인식 ───────────────────────────────────
 
-def recognize_food(image_path: str) -> list[dict]:
+def recognize_food(image_path: str, description: str = "") -> list[dict]:
     """
     음식 사진을 Claude Vision에 전달 → 음식명 리스트 반환
     반환: [{"food_name": "비빔밥", "amount_g": 300}, ...]
@@ -30,6 +30,17 @@ def recognize_food(image_path: str) -> list[dict]:
 
     ext = image_path.split(".")[-1].lower()
     media_type = "image/jpeg" if ext in ["jpg", "jpeg"] else "image/png"
+
+    prompt = """이 음식 사진을 분석해서 아래 JSON 형식으로만 응답해줘. 다른 말은 하지 마.
+
+[
+  {"food_name": "음식명", "amount_g": 예상중량(숫자)}
+]
+
+음식명은 한국어로, 중량은 일반적인 1인분 기준으로 추정해줘."""
+
+    if description:
+        prompt += f"\n\n사용자 추가 설명: {description}\n이 설명을 참고해서 음식명과 섭취량을 더 정확하게 추정해줘."
 
     response = client.messages.create(
         model="claude-sonnet-4-6",
@@ -43,13 +54,7 @@ def recognize_food(image_path: str) -> list[dict]:
                 },
                 {
                     "type": "text",
-                    "text": """이 음식 사진을 분석해서 아래 JSON 형식으로만 응답해줘. 다른 말은 하지 마.
-
-[
-  {"food_name": "음식명", "amount_g": 예상중량(숫자)}
-]
-
-음식명은 한국어로, 중량은 일반적인 1인분 기준으로 추정해줘."""
+                    "text": prompt
                 }
             ]
         }]
@@ -211,12 +216,12 @@ def get_today_nutrition_summary(date: str = None) -> dict:
 
 # ── 통합 실행 (사진 업로드 → 저장) ─────────────────────
 
-def process_food_image(image_path: str) -> list[dict]:
+def process_food_image(image_path: str, description: str = "") -> list[dict]:
     """
     사진 업로드 → 인식 → DB 조회 (없으면 웹검색) → 저장
     반환: 저장된 음식 목록
     """
-    foods = recognize_food(image_path)
+    foods = recognize_food(image_path, description)
     results = []
     for food in foods:
         nutrition = search_food_db(food["food_name"])
