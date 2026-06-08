@@ -6,27 +6,32 @@
   <title>설정 — 세얼간이</title>
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/components.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 
 <div class="app-shell fixed-page">
 
   <!-- 헤더 -->
-  <div class="dash-header" style="flex-shrink:0">
-    <div>
-      <div class="dash-greeting">⚙️ 설정</div>
-      <div class="dash-date-sub">위치 · 시간표 · 인바디 데이터 등록</div>
-    </div>
+  <div style="padding:18px 16px 10px;flex-shrink:0">
+    <div class="page-title">설정</div>
+    <div class="page-subtitle">위치 · 시간표 · 인바디 데이터</div>
   </div>
 
-  <!-- 탭 버튼 -->
+  <!-- 탭 -->
   <div class="settings-tabs">
-    <button class="stab active" data-tab="location" onclick="showTab('location')">📍 위치</button>
-    <button class="stab" data-tab="schedule"  onclick="showTab('schedule')">📅 시간표</button>
-    <button class="stab" data-tab="inbody"    onclick="showTab('inbody')">⚖️ 인바디</button>
+    <button class="stab active" data-tab="location" onclick="showTab('location')">
+      <i data-lucide="map-pin" style="width:13px;height:13px;vertical-align:-2px"></i> 위치
+    </button>
+    <button class="stab" data-tab="schedule" onclick="showTab('schedule')">
+      <i data-lucide="calendar" style="width:13px;height:13px;vertical-align:-2px"></i> 시간표
+    </button>
+    <button class="stab" data-tab="inbody" onclick="showTab('inbody')">
+      <i data-lucide="scale" style="width:13px;height:13px;vertical-align:-2px"></i> 인바디
+    </button>
   </div>
 
-  <!-- ── 위치 탭 ──────────────────────────────── -->
+  <!-- 위치 탭 -->
   <div class="settings-panel active" data-panel="location">
 
     <div class="settings-section">
@@ -37,14 +42,14 @@
     </div>
 
     <div class="settings-section">
-      <div class="settings-title">➕ 위치 추가</div>
+      <div class="settings-title">위치 추가</div>
 
       <div class="input-group">
         <label class="input-label">장소 유형</label>
         <select id="locName" class="input">
-          <option value="집">🏠 집</option>
-          <option value="학교">🏫 학교</option>
-          <option value="알바">💼 알바</option>
+          <option value="집">집</option>
+          <option value="학교">학교</option>
+          <option value="알바">알바</option>
         </select>
       </div>
 
@@ -53,45 +58,45 @@
         <input type="text" id="locAddress" class="input" placeholder="예) 인천광역시 미추홀구 인하로 100">
       </div>
 
-      <div class="input-row">
-        <div class="input-group">
-          <label class="input-label">위도 (lat)</label>
+      <div class="input-row mb-3">
+        <div class="input-group" style="margin-bottom:0">
+          <label class="input-label">위도</label>
           <input type="number" id="locLat" class="input" placeholder="37.4500" step="0.0001">
         </div>
-        <div class="input-group">
-          <label class="input-label">경도 (lon)</label>
+        <div class="input-group" style="margin-bottom:0">
+          <label class="input-label">경도</label>
           <input type="number" id="locLon" class="input" placeholder="126.6540" step="0.0001">
         </div>
       </div>
 
-      <div class="input-row">
-        <div class="input-group">
+      <div class="input-row mb-3">
+        <div class="input-group" style="margin-bottom:0">
           <label class="input-label">시작 시간</label>
           <input type="time" id="locStart" class="input">
         </div>
-        <div class="input-group">
+        <div class="input-group" style="margin-bottom:0">
           <label class="input-label">종료 시간</label>
           <input type="time" id="locEnd" class="input">
         </div>
       </div>
 
-      <div class="alert alert-info mb-3" style="font-size:11px">
+      <div class="alert alert-info mb-3">
         💡 위도/경도는 <a href="https://map.kakao.com" target="_blank" style="color:var(--primary);font-weight:700">카카오맵</a>에서 확인하세요.
       </div>
 
       <button class="btn btn-primary btn-full" id="saveLocBtn" onclick="saveLocation()">
-        💾 위치 저장
+        <i data-lucide="save"></i> 위치 저장
       </button>
     </div>
 
   </div>
 
-  <!-- ── 시간표 탭 ─────────────────────────────── -->
+  <!-- 시간표 탭 -->
   <div class="settings-panel" data-panel="schedule">
 
     <div class="settings-section">
-      <div class="settings-title">📅 시간표 등록</div>
-      <p class="text-xs text-muted mb-3">에브리타임 스크린샷을 올리면 Claude AI가 자동 파싱합니다.</p>
+      <div class="settings-title">시간표 등록</div>
+      <p class="text-xs text-muted mb-3">에브리타임 스크린샷을 올리면 Claude AI가 자동으로 파싱합니다.</p>
       <div class="upload-area" id="scheduleUploadArea">
         <span class="upload-icon">📸</span>
         <div class="upload-title">시간표 사진을 올려주세요</div>
@@ -102,7 +107,7 @@
     </div>
 
     <div class="settings-section">
-      <div class="settings-title">현재 등록된 시간표</div>
+      <div class="settings-title">등록된 시간표</div>
       <div id="scheduleView">
         <div class="loading-box"><div class="spinner"></div></div>
       </div>
@@ -110,35 +115,35 @@
 
   </div>
 
-  <!-- ── 인바디 탭 ─────────────────────────────── -->
+  <!-- 인바디 탭 -->
   <div class="settings-panel" data-panel="inbody">
 
     <div class="settings-section">
-      <div class="settings-title">⚖️ 인바디 데이터 등록</div>
+      <div class="settings-title">인바디 데이터 등록</div>
       <p class="text-xs text-muted mb-3">결과지 사진을 올리면 체중·골격근·체지방·BMR을 자동으로 추출합니다.</p>
       <div class="upload-area" id="inbodyUploadArea">
         <span class="upload-icon">📋</span>
         <div class="upload-title">인바디 결과지 사진을 올려주세요</div>
-        <div class="upload-sub">Claude Vision AI가 자동으로 수치를 추출합니다</div>
+        <div class="upload-sub">Claude Vision AI가 수치를 자동으로 추출합니다</div>
       </div>
       <input type="file" id="inbodyFileInput" accept="image/*" style="display:none">
       <div id="inbodyResult"></div>
     </div>
 
     <div class="settings-section">
-      <div class="settings-title">현재 인바디 데이터</div>
+      <div class="settings-title">등록된 인바디</div>
       <div id="inbodyView">
         <div class="loading-box"><div class="spinner"></div></div>
       </div>
     </div>
 
     <div class="settings-section">
-      <div class="settings-title">ℹ️ 앱 정보</div>
-      <div class="text-xs text-muted" style="line-height:1.9">
-        <div>🏃 <strong>세얼간이 건강지킴이</strong></div>
-        <div>👥 이창연 · 배주환 · 임서연</div>
-        <div>🛠 Python · FastAPI · SQLite · Claude API</div>
-        <div>📡 삼성헬스 CSV · WeatherAPI · Kakao Maps</div>
+      <div class="settings-title">앱 정보</div>
+      <div class="text-xs text-muted" style="line-height:2">
+        <div><strong>세얼간이 건강지킴이</strong></div>
+        <div>이창연 · 배주환 · 임서연</div>
+        <div>Python · FastAPI · SQLite · Claude API</div>
+        <div>삼성헬스 CSV · WeatherAPI · Kakao Maps</div>
       </div>
     </div>
 
@@ -146,20 +151,23 @@
 
   <!-- 하단 네비게이션 -->
   <nav class="bottom-nav">
-    <a href="/" class="bnav-item">
-      <span class="bnav-icon">🏠</span>
-      <span class="bnav-label">홈</span>
+    <a href="/stats" class="bnav-item">
+      <div class="bnav-icon-wrap"><i data-lucide="bar-chart-2"></i></div>
+      <span class="bnav-label">대시</span>
     </a>
     <a href="/diet" class="bnav-item">
-      <span class="bnav-icon">🍽</span>
+      <div class="bnav-icon-wrap"><i data-lucide="utensils"></i></div>
       <span class="bnav-label">식단</span>
     </a>
+    <a href="/" class="bnav-item bnav-fab">
+      <div class="bnav-fab-btn"><i data-lucide="home"></i></div>
+    </a>
     <a href="/exercise" class="bnav-item">
-      <span class="bnav-icon">🏋</span>
+      <div class="bnav-icon-wrap"><i data-lucide="dumbbell"></i></div>
       <span class="bnav-label">운동</span>
     </a>
     <a href="/settings" class="bnav-item active">
-      <span class="bnav-icon">⚙️</span>
+      <div class="bnav-icon-wrap"><i data-lucide="settings"></i></div>
       <span class="bnav-label">설정</span>
     </a>
   </nav>
@@ -171,11 +179,14 @@
 <script src="/static/js/api.js"></script>
 <script src="/static/js/settings.js"></script>
 <script>
+  lucide.createIcons();
+
   function showTab(name) {
     document.querySelectorAll('.stab').forEach(t =>
       t.classList.toggle('active', t.dataset.tab === name));
     document.querySelectorAll('.settings-panel').forEach(p =>
       p.classList.toggle('active', p.dataset.panel === name));
+    lucide.createIcons();
   }
 </script>
 </body>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>대시보드 — 세얼간이</title>
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- 헤더 -->
+  <div class="page-header">
+    <div>
+      <div class="page-title">건강 대시보드</div>
+      <div class="page-subtitle">삼성헬스 + AI 분석</div>
+    </div>
+    <div class="date-row">
+      <button class="date-nav-btn" onclick="prevDay()">‹</button>
+      <input type="date" id="dateInput" class="date-input" onchange="onDateChange(this.value)">
+      <button class="date-nav-btn" onclick="nextDay()">›</button>
+      <button class="btn btn-secondary btn-xs" onclick="loadAll()"><i data-lucide="rotate-ccw"></i></button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- 메트릭 2×2 그리드 -->
+    <div class="grid-2">
+      <div class="card stat-card stat-blue"   id="steps-card">
+        <div class="loading-box"><div class="spinner"></div></div>
+      </div>
+      <div class="card stat-card stat-purple" id="sleep-card">
+        <div class="loading-box"><div class="spinner"></div></div>
+      </div>
+      <div class="card stat-card stat-red"    id="hr-card">
+        <div class="loading-box"><div class="spinner"></div></div>
+      </div>
+      <div class="card stat-card stat-orange" id="inbody-card">
+        <div class="loading-box"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- 날씨 + 산책 -->
+    <div class="grid-2">
+      <div class="card" id="weather-card">
+        <div class="loading-box"><div class="spinner"></div></div>
+      </div>
+      <div class="card" id="walk-card">
+        <div class="loading-box"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- 시간표 + 식단 요약 -->
+    <div class="grid-2">
+      <div class="card" id="schedule-card">
+        <div class="loading-box"><div class="spinner"></div></div>
+      </div>
+      <div class="card" id="meal-summary">
+        <div class="loading-box"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- 옷차림 (JS 호환용, 숨김) -->
+  <div id="outfit-card" style="display:none"></div>
+
+  <!-- 피티쌤 배너 -->
+  <div id="pt-banner" class="pt-banner" role="alert" aria-live="polite">
+    <div class="pt-avatar" id="pt-avatar">💪</div>
+    <div class="pt-content">
+      <div class="pt-name">피티쌤</div>
+      <div class="pt-msg" id="pt-msg"></div>
+    </div>
+    <button class="pt-close" onclick="closePtBanner()">✕</button>
+  </div>
+
+  <!-- 하단 네비게이션 -->
+  <nav class="bottom-nav">
+    <a href="/stats" class="bnav-item active">
+      <div class="bnav-icon-wrap"><i data-lucide="bar-chart-2"></i></div>
+      <span class="bnav-label">대시</span>
+    </a>
+    <a href="/diet" class="bnav-item">
+      <div class="bnav-icon-wrap"><i data-lucide="utensils"></i></div>
+      <span class="bnav-label">식단</span>
+    </a>
+    <a href="/" class="bnav-item bnav-fab">
+      <div class="bnav-fab-btn"><i data-lucide="home"></i></div>
+    </a>
+    <a href="/exercise" class="bnav-item">
+      <div class="bnav-icon-wrap"><i data-lucide="dumbbell"></i></div>
+      <span class="bnav-label">운동</span>
+    </a>
+    <a href="/settings" class="bnav-item">
+      <div class="bnav-icon-wrap"><i data-lucide="settings"></i></div>
+      <span class="bnav-label">설정</span>
+    </a>
+  </nav>
+
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/dashboard.js"></script>
+<script>lucide.createIcons();</script>
+</body>
+</html>

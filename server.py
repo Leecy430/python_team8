@@ -94,6 +94,10 @@ def exercise_page():
 def settings_page():
     return FileResponse(Path("frontend/settings.html"))
 
+@app.get("/stats")
+def stats_page():
+    return FileResponse(Path("frontend/stats.html"))
+
 # ════════════════════════════════════════════════════════
 # 대시보드
 # ════════════════════════════════════════════════════════

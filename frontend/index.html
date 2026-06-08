@@ -3,106 +3,249 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>세얼간이 건강지킴이</title>
+  <title>홈 — 세얼간이</title>
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/components.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 
-<div class="app-shell fixed-page">
+<div class="app-shell">
 
   <!-- 헤더 -->
-  <header class="dash-header">
+  <div class="page-header">
     <div>
-      <div class="dash-greeting">안녕하세요 👋</div>
-      <div class="dash-date-sub">오늘의 건강 현황</div>
+      <div class="page-title">안녕하세요 👋</div>
+      <div class="page-subtitle" id="homeDate">오늘의 현황</div>
     </div>
-    <div class="date-row">
-      <button class="date-nav-btn" onclick="prevDay()">‹</button>
-      <input type="date" id="dateInput" class="date-input" onchange="onDateChange(this.value)">
-      <button class="date-nav-btn" onclick="nextDay()">›</button>
-      <button class="btn btn-secondary btn-xs" onclick="loadAll()">↺</button>
-    </div>
-  </header>
+    <button class="btn btn-secondary btn-sm" onclick="initHome()">
+      <i data-lucide="rotate-ccw"></i>
+    </button>
+  </div>
 
-  <div class="dash-layout">
+  <div class="container">
 
-    <!-- 메트릭 2×2 -->
-    <div class="metric-grid">
-      <div class="card stat-card stat-blue" id="steps-card">
-        <div class="loading-box"><div class="spinner"></div></div>
+    <!-- 오늘 걸음수 카드 -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <div class="card-label"><i data-lucide="footprints"></i> 오늘 걸음수</div>
+        <span class="badge badge-purple" id="stepsGoalBadge">목표 8,000보</span>
       </div>
-      <div class="card stat-card stat-purple" id="sleep-card">
-        <div class="loading-box"><div class="spinner"></div></div>
-      </div>
-      <div class="card stat-card stat-red" id="hr-card">
-        <div class="loading-box"><div class="spinner"></div></div>
-      </div>
-      <div class="card stat-card stat-orange" id="inbody-card">
+      <div id="steps-display">
         <div class="loading-box"><div class="spinner"></div></div>
       </div>
     </div>
 
-    <!-- 날씨 + 산책 -->
-    <div class="dash-row">
-      <div class="card" id="weather-card">
-        <div class="loading-box"><div class="spinner"></div></div>
+    <!-- 피티쌤 알림 히스토리 -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <div class="card-label"><i data-lucide="bell"></i> 피티쌤 알림</div>
+        <button class="btn btn-xs btn-secondary" onclick="clearHistory()">지우기</button>
       </div>
-      <div class="card" id="walk-card">
-        <div class="loading-box"><div class="spinner"></div></div>
-      </div>
-    </div>
-
-    <!-- 시간표 + 식단 요약 -->
-    <div class="dash-row">
-      <div class="card" id="schedule-card">
-        <div class="loading-box"><div class="spinner"></div></div>
-      </div>
-      <div class="card" id="meal-summary">
-        <div class="loading-box"><div class="spinner"></div></div>
+      <div id="pt-history">
+        <div class="empty-state">
+          <span class="empty-icon">🔔</span>
+          <div class="empty-text">아직 받은 알림이 없어요<br>피티쌤이 운동 상태를 지켜보고 있어요!</div>
+        </div>
       </div>
     </div>
 
   </div>
-
-  <!-- 피티쌤 알림 (오버레이 카드) -->
-  <div id="pt-banner" class="pt-banner" role="alert" aria-live="polite">
-    <div class="pt-avatar" id="pt-avatar">💪</div>
-    <div class="pt-content">
-      <div class="pt-name">피티쌤</div>
-      <div class="pt-msg" id="pt-msg"></div>
-    </div>
-    <button class="pt-close" onclick="closePtBanner()">✕</button>
-  </div>
-
-  <!-- 옷차림 (숨김 — JS 호환용) -->
-  <div id="outfit-card" style="display:none"></div>
 
   <!-- 하단 네비게이션 -->
   <nav class="bottom-nav">
-    <a href="/" class="bnav-item active">
-      <span class="bnav-icon">🏠</span>
-      <span class="bnav-label">홈</span>
+    <a href="/stats" class="bnav-item">
+      <div class="bnav-icon-wrap"><i data-lucide="bar-chart-2"></i></div>
+      <span class="bnav-label">대시</span>
     </a>
     <a href="/diet" class="bnav-item">
-      <span class="bnav-icon">🍽</span>
+      <div class="bnav-icon-wrap"><i data-lucide="utensils"></i></div>
       <span class="bnav-label">식단</span>
     </a>
+    <a href="/" class="bnav-item bnav-fab active">
+      <div class="bnav-fab-btn"><i data-lucide="home"></i></div>
+    </a>
     <a href="/exercise" class="bnav-item">
-      <span class="bnav-icon">🏋</span>
+      <div class="bnav-icon-wrap"><i data-lucide="dumbbell"></i></div>
       <span class="bnav-label">운동</span>
     </a>
     <a href="/settings" class="bnav-item">
-      <span class="bnav-icon">⚙️</span>
+      <div class="bnav-icon-wrap"><i data-lucide="settings"></i></div>
       <span class="bnav-label">설정</span>
     </a>
   </nav>
 
 </div>
 
+<!-- 피티쌤 실시간 배너 -->
+<div id="pt-banner" class="pt-banner" role="alert" aria-live="polite">
+  <div class="pt-avatar" id="pt-avatar">💪</div>
+  <div class="pt-content">
+    <div class="pt-name">피티쌤</div>
+    <div class="pt-msg" id="pt-msg"></div>
+  </div>
+  <button class="pt-close" onclick="closePtBanner()">✕</button>
+</div>
+
 <div id="toast" class="toast"></div>
 
 <script src="/static/js/api.js"></script>
-<script src="/static/js/dashboard.js"></script>
+<script>
+  const PT_KEY = 'pt_history_v3';
+
+  /* ── 날짜 표시 ─────────────────────────── */
+  function setDateLabel() {
+    const d = new Date(new Date().getTime() + 9 * 3600000);
+    const label = d.toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' });
+    const el = document.getElementById('homeDate');
+    if (el) el.textContent = label;
+  }
+
+  /* ── 걸음수 로드 ───────────────────────── */
+  async function loadSteps() {
+    const el = document.getElementById('steps-display');
+    try {
+      const s = await API.getSteps(today());
+      const count = s?.count ?? 0;
+      const dist  = s?.distance_m ? (s.distance_m / 1000).toFixed(1) : '—';
+      const cal   = s?.calorie ?? 0;
+      const goal  = 8000;
+      const pct   = Math.min(100, Math.round(count / goal * 100));
+      const circ  = 2 * Math.PI * 46;
+      const dash  = (pct / 100 * circ).toFixed(1);
+
+      el.innerHTML = `
+        <div class="steps-big-wrap">
+          <div class="steps-ring-big">
+            <svg width="120" height="120" viewBox="0 0 120 120">
+              <circle cx="60" cy="60" r="46" fill="none" stroke="var(--border)" stroke-width="10"/>
+              <circle cx="60" cy="60" r="46" fill="none" stroke="var(--primary)" stroke-width="10"
+                      stroke-dasharray="${dash} ${circ.toFixed(1)}"
+                      stroke-linecap="round"
+                      style="transform:rotate(-90deg);transform-origin:60px 60px"/>
+            </svg>
+            <div class="steps-ring-center">
+              <div class="steps-big-num">${count.toLocaleString()}</div>
+              <div class="steps-big-unit">걸음</div>
+            </div>
+          </div>
+          <div class="steps-meta-col">
+            <div class="steps-meta-item">
+              <div class="steps-meta-val">${pct}%</div>
+              <div class="steps-meta-lbl">목표 달성</div>
+            </div>
+            <div class="steps-meta-item">
+              <div class="steps-meta-val">${dist}</div>
+              <div class="steps-meta-lbl">km 이동</div>
+            </div>
+            <div class="steps-meta-item">
+              <div class="steps-meta-val">${cal}</div>
+              <div class="steps-meta-lbl">kcal 소모</div>
+            </div>
+          </div>
+        </div>
+        <div class="steps-goal-row">
+          <span>진행</span>
+          <span>${count.toLocaleString()} / ${goal.toLocaleString()}보</span>
+        </div>
+        <div class="steps-goal-bar">
+          <div class="steps-goal-fill" style="width:${pct}%"></div>
+        </div>
+      `;
+    } catch(e) {
+      el.innerHTML = '<div class="empty-state"><span class="empty-icon">👟</span><div class="empty-text">걸음 데이터가 없어요<br>삼성헬스 데이터를 확인해 주세요</div></div>';
+    }
+  }
+
+  /* ── PT 알림 히스토리 ─────────────────── */
+  function getHistory() {
+    try { return JSON.parse(localStorage.getItem(PT_KEY) || '[]'); }
+    catch { return []; }
+  }
+
+  function addToHistory(n) {
+    const h = getHistory();
+    const now = new Date();
+    h.unshift({
+      avatar:  n.avatar  || '💪',
+      message: n.message || n.msg || '',
+      type:    n.type    || 'default',
+      time: now.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }),
+    });
+    if (h.length > 30) h.length = 30;
+    localStorage.setItem(PT_KEY, JSON.stringify(h));
+  }
+
+  function renderHistory() {
+    const h = getHistory();
+    const el = document.getElementById('pt-history');
+    if (!el) return;
+    if (!h.length) {
+      el.innerHTML = '<div class="empty-state"><span class="empty-icon">🔔</span><div class="empty-text">아직 받은 알림이 없어요<br>피티쌤이 운동 상태를 지켜보고 있어요!</div></div>';
+      return;
+    }
+    el.innerHTML = h.map(n => `
+      <div class="notif-item notif-${n.type}">
+        <div class="notif-dot"></div>
+        <div class="notif-body">
+          <div class="notif-msg">${n.message}</div>
+          <div class="notif-meta">
+            <span class="notif-avatar">${n.avatar}</span>
+            <span class="notif-time">${n.time}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function clearHistory() {
+    localStorage.removeItem(PT_KEY);
+    renderHistory();
+  }
+
+  /* ── SSE 피티쌤 ────────────────────────── */
+  function initSSE() {
+    const es = new EventSource('/api/pt/stream');
+    es.onmessage = e => {
+      try {
+        const n = JSON.parse(e.data);
+        if (n.message || n.msg) {
+          addToHistory(n);
+          renderHistory();
+          showBanner(n);
+        }
+      } catch {}
+    };
+    es.onerror = () => {};
+  }
+
+  function showBanner(n) {
+    const b = document.getElementById('pt-banner');
+    if (!b) return;
+    b.className = 'pt-banner' + (n.type ? ' type-' + n.type : '');
+    document.getElementById('pt-avatar').textContent = n.avatar || '💪';
+    document.getElementById('pt-msg').textContent = n.message || n.msg || '';
+    b.classList.add('show');
+    clearTimeout(b._t);
+    b._t = setTimeout(() => b.classList.remove('show'), 8000);
+  }
+
+  function closePtBanner() {
+    document.getElementById('pt-banner')?.classList.remove('show');
+  }
+
+  /* ── 초기화 ─────────────────────────────── */
+  function initHome() {
+    setDateLabel();
+    loadSteps();
+    renderHistory();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+    initHome();
+    initSSE();
+  });
+</script>
 </body>
 </html>

@@ -8,11 +8,12 @@
   <link rel="stylesheet" href="/static/css/components.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <style>
     .exercise-suggestion {
-      padding: 8px 12px;
+      padding: 10px 14px;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 14px;
       border-bottom: 1px solid var(--border);
       transition: background .1s;
     }
@@ -21,7 +22,7 @@
       background: var(--card);
       border: 1.5px solid var(--border);
       border-top: none;
-      border-radius: 0 0 12px 12px;
+      border-radius: 0 0 14px 14px;
       overflow: hidden;
       position: absolute;
       width: 100%;
@@ -33,30 +34,32 @@
 </head>
 <body>
 
-<div class="app-shell scroll-page">
+<div class="app-shell">
 
   <!-- 헤더 -->
   <div class="page-header">
     <div>
-      <div class="page-title">🏋 운동</div>
+      <div class="page-title">운동</div>
       <div class="page-subtitle">AI 루틴 · 공강 운동 · 산책</div>
     </div>
-    <button class="btn btn-secondary btn-sm" onclick="loadExerciseRecommend();loadFreeSlots();loadWalk()">↺ 새로고침</button>
+    <button class="btn btn-secondary btn-sm" onclick="loadExerciseRecommend();loadFreeSlots();loadWalk()">
+      <i data-lucide="rotate-ccw"></i>
+    </button>
   </div>
 
   <div class="container">
 
-    <!-- AI 운동 루틴 추천 -->
+    <!-- AI 운동 루틴 -->
     <div class="ai-card mb-4">
       <div id="exerciseRecommend">
         <div class="loading-box"><div class="spinner"></div><div style="font-size:12px;color:var(--text-muted)">AI가 오늘 루틴 분석 중...</div></div>
       </div>
     </div>
 
-    <!-- 공강 운동 추천 -->
+    <!-- 공강 운동 -->
     <div class="card mb-4">
       <div class="card-header">
-        <div class="card-label">⏰ 공강 시간 운동</div>
+        <div class="card-label"><i data-lucide="clock"></i> 공강 시간 운동</div>
         <span class="badge badge-purple">시간표 기반</span>
       </div>
       <div id="freeSlots">
@@ -66,15 +69,15 @@
 
     <!-- 산책 지도 -->
     <div class="card mb-4">
-      <div class="card-label mb-3">🚶 퇴근길 산책 추천</div>
+      <div class="card-label mb-3"><i data-lucide="map"></i> 퇴근길 산책 추천</div>
       <div id="walkRecommend">
         <div class="loading-box"><div class="spinner"></div></div>
       </div>
     </div>
 
-    <!-- 운동 수동 기록 -->
+    <!-- 수동 운동 기록 -->
     <div class="card mb-4">
-      <div class="card-label mb-3">✏️ 운동 직접 기록</div>
+      <div class="card-label mb-3"><i data-lucide="pencil"></i> 운동 직접 기록</div>
 
       <div class="grid-2">
         <div class="input-group">
@@ -95,13 +98,12 @@
         <input type="number" id="exWeight" class="input" placeholder="70" value="70" min="30" max="200">
       </div>
 
-      <div class="alert alert-info mb-3" style="font-size:12px">
-        💡 MET 공식으로 소모 칼로리를 계산합니다.<br>
-        걷기(3.5) · 달리기(8.0) · 스쿼트(5.0) · 푸시업(4.0) · 줄넘기(10.0) 등
+      <div class="alert alert-info mb-3">
+        💡 MET 공식: 걷기(3.5) · 달리기(8.0) · 스쿼트(5.0) · 푸시업(4.0) · 줄넘기(10.0)
       </div>
 
       <button class="btn btn-primary btn-full" id="saveExBtn" onclick="saveExercise()">
-        💾 운동 기록 저장
+        <i data-lucide="save"></i> 운동 기록 저장
       </button>
     </div>
 
@@ -109,20 +111,23 @@
 
   <!-- 하단 네비게이션 -->
   <nav class="bottom-nav">
-    <a href="/" class="bnav-item">
-      <span class="bnav-icon">🏠</span>
-      <span class="bnav-label">홈</span>
+    <a href="/stats" class="bnav-item">
+      <div class="bnav-icon-wrap"><i data-lucide="bar-chart-2"></i></div>
+      <span class="bnav-label">대시</span>
     </a>
     <a href="/diet" class="bnav-item">
-      <span class="bnav-icon">🍽</span>
+      <div class="bnav-icon-wrap"><i data-lucide="utensils"></i></div>
       <span class="bnav-label">식단</span>
     </a>
+    <a href="/" class="bnav-item bnav-fab">
+      <div class="bnav-fab-btn"><i data-lucide="home"></i></div>
+    </a>
     <a href="/exercise" class="bnav-item active">
-      <span class="bnav-icon">🏋</span>
+      <div class="bnav-icon-wrap"><i data-lucide="dumbbell"></i></div>
       <span class="bnav-label">운동</span>
     </a>
     <a href="/settings" class="bnav-item">
-      <span class="bnav-icon">⚙️</span>
+      <div class="bnav-icon-wrap"><i data-lucide="settings"></i></div>
       <span class="bnav-label">설정</span>
     </a>
   </nav>
@@ -132,13 +137,13 @@
 <div id="toast" class="toast"></div>
 
 <!-- 피드백 모달 -->
-<div id="feedbackModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:3000;background:rgba(26,22,53,.55);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+<div id="feedbackModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:3000;background:rgba(26,22,53,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center">
   <div class="modal-box">
-    <div class="modal-title">👎 어떤 점이 별로였나요?</div>
+    <div class="modal-title">어떤 점이 별로였나요?</div>
     <div class="modal-sub">피드백을 남겨주시면 다음 추천에 반영됩니다</div>
     <textarea id="feedbackText" class="input" rows="4"
       placeholder="예) 강도가 너무 높아요, 비슷한 운동만 나와요..."
-      style="resize:none;margin-bottom:12px"></textarea>
+      style="resize:none;margin-bottom:14px"></textarea>
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button class="btn btn-secondary btn-sm" onclick="closeFeedbackModal()">취소</button>
       <button class="btn btn-primary btn-sm" onclick="submitFeedbackModal()">완료</button>
@@ -149,15 +154,16 @@
 <!-- 지도 확대 모달 -->
 <div id="mapModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:2000;background:rgba(26,22,53,.6);backdrop-filter:blur(4px)">
   <div style="position:relative;width:92%;max-width:430px;height:80dvh;margin:4dvh auto;background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-md)">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)">
-      <div style="font-weight:800;font-size:15px">🗺 산책 경로</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
+      <div style="font-weight:800;font-size:15px">산책 경로</div>
       <button onclick="closeMapModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-muted);line-height:1">✕</button>
     </div>
-    <div id="mapModalContainer" style="width:100%;height:calc(100% - 53px)"></div>
+    <div id="mapModalContainer" style="width:100%;height:calc(100% - 55px)"></div>
   </div>
 </div>
 
 <script src="/static/js/api.js"></script>
 <script src="/static/js/exercise.js"></script>
+<script>lucide.createIcons();</script>
 </body>
 </html>

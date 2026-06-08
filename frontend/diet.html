@@ -6,16 +6,17 @@
   <title>식단 — 세얼간이</title>
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/components.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 
-<div class="app-shell scroll-page">
+<div class="app-shell">
 
   <!-- 헤더 -->
   <div class="page-header">
     <div>
-      <div class="page-title">🍽 식단</div>
-      <div class="page-subtitle">사진을 올리면 AI가 영양소를 분석해요</div>
+      <div class="page-title">식단</div>
+      <div class="page-subtitle">사진을 올리면 AI가 분석해요</div>
     </div>
     <div class="date-row">
       <button class="date-nav-btn" onclick="prevDay()">‹</button>
@@ -26,15 +27,15 @@
 
   <div class="container">
 
-    <!-- 칼로리 도넛 카드 -->
+    <!-- 칼로리 도넛 -->
     <div class="card mb-4">
-      <div class="card-label mb-3">오늘 칼로리</div>
+      <div class="card-label mb-3"><i data-lucide="pie-chart"></i> 오늘 칼로리</div>
       <div class="calorie-donut-wrap">
         <div class="calorie-donut">
-          <svg width="88" height="88" viewBox="0 0 88 88">
-            <circle cx="44" cy="44" r="34" fill="none" stroke="var(--border)" stroke-width="10"/>
-            <circle cx="44" cy="44" r="34" fill="none" stroke="var(--primary)" stroke-width="10"
-                    stroke-dasharray="0 213.63" stroke-linecap="round" id="donutArc"/>
+          <svg width="92" height="92" viewBox="0 0 92 92">
+            <circle cx="46" cy="46" r="36" fill="none" stroke="var(--border)" stroke-width="10"/>
+            <circle cx="46" cy="46" r="36" fill="none" stroke="var(--primary)" stroke-width="10"
+                    stroke-dasharray="0 226.2" stroke-linecap="round" id="donutArc"/>
           </svg>
           <div class="donut-center">
             <div class="donut-kcal" id="donutKcal">—</div>
@@ -42,21 +43,21 @@
           </div>
         </div>
         <div>
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">목표 칼로리</div>
-          <div style="font-size:22px;font-weight:800;color:var(--text)">2,000</div>
-          <div style="font-size:11px;color:var(--text-muted);margin-top:2px">kcal / 일</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">일일 목표</div>
+          <div style="font-size:26px;font-weight:800;color:var(--text);letter-spacing:-1px">2,000</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px">kcal</div>
         </div>
       </div>
     </div>
 
-    <!-- 영양소 진행률 (JS 렌더링) -->
+    <!-- 영양소 요약 (JS 렌더링) -->
     <div class="card mb-4" id="nutritionSummary">
       <div class="loading-box"><div class="spinner"></div></div>
     </div>
 
     <!-- 음식 사진 업로드 -->
     <div class="card mb-4">
-      <div class="card-label mb-3">📸 음식 사진 업로드</div>
+      <div class="card-label mb-3"><i data-lucide="camera"></i> 음식 사진 업로드</div>
       <div class="upload-area" id="uploadArea">
         <span class="upload-icon">📸</span>
         <div class="upload-title">음식 사진을 올려주세요</div>
@@ -69,17 +70,17 @@
     <!-- 오늘 식단 목록 -->
     <div class="card mb-4">
       <div class="card-header">
-        <div class="card-label">📋 오늘 식단 목록</div>
+        <div class="card-label"><i data-lucide="list"></i> 오늘 식단</div>
       </div>
       <div id="mealList">
         <div class="loading-box"><div class="spinner"></div></div>
       </div>
     </div>
 
-    <!-- AI 다음 끼니 추천 -->
+    <!-- AI 추천 -->
     <div class="card mb-4">
       <div class="flex-between mb-3">
-        <div class="card-label">🤖 다음 끼니 AI 추천</div>
+        <div class="card-label"><i data-lucide="sparkles"></i> 다음 끼니 AI 추천</div>
         <button class="btn btn-primary btn-sm" id="recommendBtn" onclick="getRecommend()">
           추천받기
         </button>
@@ -87,7 +88,7 @@
       <div id="recommendResult">
         <div class="empty-state">
           <span class="empty-icon">🤖</span>
-          <div class="empty-text">버튼을 눌러 AI에게 다음 끼니를 추천받으세요<br>오늘 섭취 칼로리와 인바디 BMR을 분석합니다</div>
+          <div class="empty-text">버튼을 눌러 AI에게 다음 끼니를 추천받으세요</div>
         </div>
       </div>
     </div>
@@ -96,20 +97,23 @@
 
   <!-- 하단 네비게이션 -->
   <nav class="bottom-nav">
-    <a href="/" class="bnav-item">
-      <span class="bnav-icon">🏠</span>
-      <span class="bnav-label">홈</span>
+    <a href="/stats" class="bnav-item">
+      <div class="bnav-icon-wrap"><i data-lucide="bar-chart-2"></i></div>
+      <span class="bnav-label">대시</span>
     </a>
     <a href="/diet" class="bnav-item active">
-      <span class="bnav-icon">🍽</span>
+      <div class="bnav-icon-wrap"><i data-lucide="utensils"></i></div>
       <span class="bnav-label">식단</span>
     </a>
+    <a href="/" class="bnav-item bnav-fab">
+      <div class="bnav-fab-btn"><i data-lucide="home"></i></div>
+    </a>
     <a href="/exercise" class="bnav-item">
-      <span class="bnav-icon">🏋</span>
+      <div class="bnav-icon-wrap"><i data-lucide="dumbbell"></i></div>
       <span class="bnav-label">운동</span>
     </a>
     <a href="/settings" class="bnav-item">
-      <span class="bnav-icon">⚙️</span>
+      <div class="bnav-icon-wrap"><i data-lucide="settings"></i></div>
       <span class="bnav-label">설정</span>
     </a>
   </nav>
@@ -119,13 +123,13 @@
 <div id="toast" class="toast"></div>
 
 <!-- 피드백 모달 -->
-<div id="feedbackModal" class="modal-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:3000;background:rgba(26,22,53,.55);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+<div id="feedbackModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:3000;background:rgba(26,22,53,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center">
   <div class="modal-box">
-    <div class="modal-title">👎 어떤 점이 별로였나요?</div>
+    <div class="modal-title">어떤 점이 별로였나요?</div>
     <div class="modal-sub">피드백을 남겨주시면 다음 추천에 반영됩니다</div>
     <textarea id="feedbackText" class="input" rows="4"
       placeholder="예) 비슷한 메뉴만 추천해요, 칼로리가 너무 높아요..."
-      style="resize:none;margin-bottom:12px"></textarea>
+      style="resize:none;margin-bottom:14px"></textarea>
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button class="btn btn-secondary btn-sm" onclick="closeFeedbackModal()">취소</button>
       <button class="btn btn-primary btn-sm" onclick="submitFeedbackModal()">완료</button>
@@ -135,5 +139,6 @@
 
 <script src="/static/js/api.js"></script>
 <script src="/static/js/diet.js"></script>
+<script>lucide.createIcons();</script>
 </body>
 </html>
