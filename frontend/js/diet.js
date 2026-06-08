@@ -179,6 +179,9 @@ async function loadMeals() {
 }
 
 // ── AI 식단 추천 ────────────────────────────────
+let _lastDietData = null;
+const dietFbKey = () => `diet_feedback_${dietDate}`;
+
 async function getRecommend() {
   const el = document.getElementById('recommendResult');
   const btn = document.getElementById('recommendBtn');
@@ -189,32 +192,93 @@ async function getRecommend() {
 
   try {
     const data = await API.getMealRecommend(dietDate);
-
-    const balanceColor = (data.calorie_balance || 0) >= 0 ? 'var(--green)' : 'var(--red)';
-    const balanceLabel = (data.calorie_balance || 0) >= 0 ? '칼로리 여유' : '칼로리 부족';
-
-    el.innerHTML = `
-      <div class="ai-card">
-        <div class="ai-label">🤖 AI 다음 끼니 추천</div>
-        ${data.comment ? `<div class="ai-comment">${data.comment}</div>` : ''}
-        <div style="margin-bottom:10px">
-          ${(data.meals || []).map(m => `
-            <div class="rec-meal">
-              <div>
-                <div class="rec-meal-name">${m.name}</div>
-                <div class="rec-meal-reason">${m.reason}</div>
-              </div>
-              <div class="rec-meal-kcal">${m.kcal}<small style="font-size:11px;font-weight:600;color:var(--text-muted)">kcal</small></div>
-            </div>`).join('')}
-        </div>
-        <div style="text-align:right;font-size:13px;color:${balanceColor};font-weight:700">
-          ${balanceLabel}: ${Math.abs(data.calorie_balance||0)}kcal
-        </div>
-      </div>`;
+    _lastDietData = data;
+    renderDietRecommend(data);
   } catch(e) {
     el.innerHTML = `<div class="alert alert-warning">추천 실패: ${e.message}</div>`;
   }
 
   btn.disabled = false;
   btn.textContent = '🤖 AI 추천 받기';
+}
+
+function renderDietRecommend(data) {
+  const el = document.getElementById('recommendResult');
+  const balanceColor = (data.calorie_balance || 0) >= 0 ? 'var(--green)' : 'var(--red)';
+  const balanceLabel = (data.calorie_balance || 0) >= 0 ? '칼로리 여유' : '칼로리 부족';
+  const fb = localStorage.getItem(dietFbKey());
+  const goodActive = fb === 'good' ? 'btn-primary' : 'btn-secondary';
+  const badActive  = fb === 'bad'  ? 'btn-primary' : 'btn-secondary';
+
+  el.innerHTML = `
+    <div class="ai-card">
+      <div class="ai-label">🤖 AI 다음 끼니 추천</div>
+      ${data.comment ? `<div class="ai-comment">${data.comment}</div>` : ''}
+      <div style="margin-bottom:10px">
+        ${(data.meals || []).map(m => `
+          <div class="rec-meal">
+            <div>
+              <div class="rec-meal-name">${m.name}</div>
+              <div class="rec-meal-reason">${m.reason}</div>
+            </div>
+            <div class="rec-meal-kcal">${m.kcal}<small style="font-size:11px;font-weight:600;color:var(--text-muted)">kcal</small></div>
+          </div>`).join('')}
+      </div>
+      <div style="text-align:right;font-size:13px;color:${balanceColor};font-weight:700;margin-bottom:12px">
+        ${balanceLabel}: ${Math.abs(data.calorie_balance||0)}kcal
+      </div>
+      <div style="padding-top:12px;border-top:1px solid var(--border)">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">이 추천이 도움이 됐나요?</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-sm ${goodActive}" onclick="setDietFeedback('good')">👍 좋아요</button>
+          <button class="btn btn-sm ${badActive}"  onclick="setDietFeedback('bad')">👎 별로에요</button>
+          <button class="btn btn-sm btn-secondary" style="margin-left:auto" onclick="getRecommend()">🔄 다시 추천</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function setDietFeedback(value) {
+  if (value === 'bad') {
+    const context = _lastDietData
+      ? `추천 메뉴: ${(_lastDietData.meals || []).map(m => m.name).join(', ')}`
+      : '';
+    openFeedbackModal('diet', context);
+    return;
+  }
+  localStorage.setItem(dietFbKey(), 'good');
+  showToast('👍 좋은 피드백 감사해요!');
+  if (_lastDietData) renderDietRecommend(_lastDietData);
+}
+
+// ── 피드백 모달 ─────────────────────────────────
+let _fbType = null;
+let _fbContext = '';
+
+function openFeedbackModal(type, context) {
+  _fbType = type;
+  _fbContext = context;
+  document.getElementById('feedbackText').value = '';
+  document.getElementById('feedbackModal').style.display = 'flex';
+}
+
+function closeFeedbackModal() {
+  document.getElementById('feedbackModal').style.display = 'none';
+}
+
+async function submitFeedbackModal() {
+  const content = document.getElementById('feedbackText').value.trim();
+  if (!content) {
+    showToast('피드백 내용을 입력해주세요.');
+    return;
+  }
+  try {
+    await API.submitFeedback(_fbType, 'bad', content, _fbContext);
+    showToast('👎 피드백이 저장됐어요. 다음 추천에 반영할게요!');
+    localStorage.setItem(dietFbKey(), 'bad');
+    if (_lastDietData) renderDietRecommend(_lastDietData);
+    closeFeedbackModal();
+  } catch(e) {
+    showToast('저장 실패: ' + e.message);
+  }
 }

@@ -9,6 +9,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv(override=True)
 from core.database import get_conn
+from core.feedback_db import get_recent_bad_feedback
 from datetime import datetime, timezone, timedelta
 
 client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
@@ -50,7 +51,32 @@ def get_diet_recommendation(date: str = None) -> dict:
     bmr = inbody["bmr_kcal"] if inbody else 1700
     weight = inbody["weight_kg"] if inbody else 70
 
-    prompt = f"""나의 오늘 건강 데이터야:
+    bad_feedbacks = get_recent_bad_feedback('diet', limit=3)
+    feedback_warning = ''
+    if bad_feedbacks:
+        directives = []
+        for f in bad_feedbacks:
+            content = f['content']
+            context = f.get('context', '')
+
+            if any(kw in content for kw in ['칼로리', '높', '많', '살', '부담']):
+                directives.append("칼로리가 낮은 메뉴 위주로 추천해줘. 500kcal 이하 메뉴만.")
+            if any(kw in content for kw in ['같', '똑같', '반복', '또', '비슷']):
+                if '추천 메뉴:' in context:
+                    prev = context.split('추천 메뉴:')[-1].strip()
+                    directives.append(f"이전에 추천했던 [{prev}]는 절대 추천하지 마. 완전히 다른 종류로.")
+            if any(kw in content for kw in ['맵', '짜', '느끼', '달', '자극']):
+                directives.append("자극적이지 않고 담백한 메뉴를 추천해줘.")
+            if not directives:
+                directives.append(f"사용자 불만: {content}. 이를 반영해서 완전히 다른 메뉴를 추천해줘.")
+
+        feedback_warning = (
+            "⚠️ 이전 식단 추천에 대한 사용자 불만 - 반드시 아래 지시를 따라줘:\n"
+            + '\n'.join(f"  - {d}" for d in directives)
+            + "\n\n"
+        )
+
+    prompt = f"""{feedback_warning}나의 오늘 건강 데이터야:
 
 - 오늘 섭취: {total_intake:.0f}kcal (단백질 {total_protein:.0f}g, 탄수화물 {total_carb:.0f}g, 지방 {total_fat:.0f}g)
 - 오늘 소모: {burned:.0f}kcal (걸음수 기반)

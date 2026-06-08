@@ -88,6 +88,21 @@
 
 <div id="toast" class="toast"></div>
 
+<!-- 피드백 모달 -->
+<div id="feedbackModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:3000;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div style="background:var(--card);border-radius:20px;padding:28px 24px;width:92%;max-width:440px;box-shadow:0 24px 64px rgba(0,0,0,0.3)">
+    <div style="font-weight:700;font-size:17px;margin-bottom:6px">👎 어떤 점이 별로였나요?</div>
+    <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px">피드백을 남겨주시면 다음 추천에 반영됩니다</div>
+    <textarea id="feedbackText" class="input" rows="4"
+      placeholder="예) 비슷한 메뉴만 추천해요, 칼로리가 너무 높아요..."
+      style="width:100%;resize:none;margin-bottom:14px;box-sizing:border-box"></textarea>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-secondary" onclick="closeFeedbackModal()">취소</button>
+      <button class="btn btn-primary" onclick="submitFeedbackModal()">완료</button>
+    </div>
+  </div>
+</div>
+
 <script src="/static/js/api.js"></script>
 <script src="/static/js/diet.js"></script>
 </body>

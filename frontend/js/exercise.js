@@ -108,16 +108,15 @@ async function toggleRoutineDone(name, durationMin) {
 }
 
 function setRoutineFeedback(value) {
-  const key = routineFeedbackKey();
-  const current = localStorage.getItem(key);
-  const next = current === value ? null : value;
-  if (next) localStorage.setItem(key, next);
-  else localStorage.removeItem(key);
-
-  const msg = next === 'good' ? '👍 좋은 피드백 감사해요!'
-            : next === 'bad'  ? '👎 다음엔 더 나은 루틴을 드릴게요!'
-            : '피드백이 취소됐어요.';
-  showToast(msg);
+  if (value === 'bad') {
+    const context = _routineData
+      ? `강도: ${_routineData.intensity}, 운동: ${(_routineData.routine || []).map(r => r.name).join(', ')}`
+      : '';
+    openFeedbackModal('exercise_routine', context);
+    return;
+  }
+  localStorage.setItem(routineFeedbackKey(), 'good');
+  showToast('👍 좋은 피드백 감사해요!');
   if (_routineData) renderRoutine(_routineData);
 }
 
@@ -152,13 +151,17 @@ function calcEffectiveTime(slotTime, totalMin, exCount) {
   let deduct = 5; // 이동/준비
   if (isLunch) deduct += 30; // 점심 식사
   const restBetween = Math.max(0, exCount - 1) * 2; // 운동 간 휴식
-  const effective = Math.max(totalMin - deduct - restBetween, exCount * 3);
+  const raw = Math.max(totalMin - deduct - restBetween, exCount * 3);
+  const effective = Math.min(raw, 40); // 최대 40분으로 제한
 
   return { effective, isLunch, deduct, restBetween };
 }
 
 function distributeTime(exList, effectiveMin) {
-  const bases = exList.map(ex => SLOT_BASE_MIN[ex] || 8);
+  const bases = exList.map(ex => {
+    const key = Object.keys(SLOT_BASE_MIN).find(k => ex.includes(k));
+    return key ? SLOT_BASE_MIN[key] : 8;
+  });
   const total = bases.reduce((a, b) => a + b, 0);
   return bases.map(b => Math.max(3, Math.round((b / total) * effectiveMin)));
 }
@@ -205,9 +208,11 @@ function renderSlotCard(slot) {
   if (restBetween > 0) infoChips.push(`😮‍💨 휴식 ${restBetween}분`);
 
   const exItems = exList.map((ex, i) => {
-    const icon = SLOT_ICONS[ex] || '🏃';
+    const iconKey = Object.keys(SLOT_ICONS).find(k => ex.includes(k));
+    const icon = iconKey ? SLOT_ICONS[iconKey] : '🏃';
     const min  = durations[i];
-    const kcal = Math.round((SLOT_MET[ex] || 4) * 70 * (min / 60));
+    const metKey = Object.keys(SLOT_MET).find(k => ex.includes(k));
+    const kcal = Math.round((metKey ? SLOT_MET[metKey] : 4) * 70 * (min / 60));
     const done = localStorage.getItem(slotKey(slot.time, ex)) === 'true';
     const key  = slotKey(slot.time, ex);
     return `
@@ -249,7 +254,7 @@ function renderSlotCard(slot) {
           <button id="fb-good-${slot.time}" class="btn btn-sm ${goodActive}"
             onclick="setFeedback('${slot.time}', 'good')">👍 좋아요</button>
           <button id="fb-bad-${slot.time}"  class="btn btn-sm ${badActive}"
-            onclick="setFeedback('${slot.time}', 'bad')">👎 별로예요</button>
+            onclick="setFeedback('${slot.time}', 'bad', ${JSON.stringify(exList)})">👎 별로예요</button>
         </div>
       </div>
     </div>`;
@@ -280,19 +285,54 @@ async function toggleDone(slotTime, exName, durationMin) {
   loadFreeSlots();
 }
 
-function setFeedback(slotTime, value) {
-  const key = feedbackKey(slotTime);
-  const current = localStorage.getItem(key);
-  // 같은 버튼 다시 누르면 취소
-  const next = current === value ? null : value;
-  if (next) localStorage.setItem(key, next);
-  else localStorage.removeItem(key);
-
-  const msg = next === 'good' ? '👍 좋은 피드백 감사해요!'
-            : next === 'bad'  ? '👎 다음엔 더 나은 추천을 드릴게요!'
-            : '피드백이 취소됐어요.';
-  showToast(msg);
+function setFeedback(slotTime, value, exercises) {
+  if (value === 'bad') {
+    const context = exercises && exercises.length
+      ? `${slotTime} / 이전 추천: ${exercises.join(', ')}`
+      : slotTime;
+    openFeedbackModal('exercise_slot', context);
+    return;
+  }
+  localStorage.setItem(feedbackKey(slotTime), 'good');
+  showToast('👍 좋은 피드백 감사해요!');
   loadFreeSlots();
+}
+
+// ── 피드백 모달 ─────────────────────────────────
+let _fbType = null;
+let _fbContext = '';
+
+function openFeedbackModal(type, context) {
+  _fbType = type;
+  _fbContext = context;
+  document.getElementById('feedbackText').value = '';
+  document.getElementById('feedbackModal').style.display = 'flex';
+}
+
+function closeFeedbackModal() {
+  document.getElementById('feedbackModal').style.display = 'none';
+}
+
+async function submitFeedbackModal() {
+  const content = document.getElementById('feedbackText').value.trim();
+  if (!content) {
+    showToast('피드백 내용을 입력해주세요.');
+    return;
+  }
+  try {
+    await API.submitFeedback(_fbType, 'bad', content, _fbContext);
+    showToast('👎 피드백이 저장됐어요. 다음 추천에 반영할게요!');
+    if (_fbType === 'exercise_routine') {
+      localStorage.setItem(routineFeedbackKey(), 'bad');
+      if (_routineData) renderRoutine(_routineData);
+    } else if (_fbType === 'exercise_slot') {
+      localStorage.setItem(feedbackKey(_fbContext), 'bad');
+      loadFreeSlots();
+    }
+    closeFeedbackModal();
+  } catch(e) {
+    showToast('저장 실패: ' + e.message);
+  }
 }
 
 // ── 산책 추천 ───────────────────────────────────
