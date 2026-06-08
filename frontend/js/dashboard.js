@@ -10,6 +10,7 @@ console.log("dashboard.js 실행됨");
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('dateInput').value = currentDate;
   loadAll();
+  initPtCoach();
 });
 
 function loadAll() {
@@ -374,6 +375,54 @@ async function loadOutfit() {
         <div class="empty-text">시간표를 먼저 등록하면 AI가 옷차림을 추천해드려요</div>
       </div>`;
   }
+}
+
+// ── 피티쌤 SSE 알림 ────────────────────────────
+const PT_EMOJI = {
+  nag:       '😤',
+  praise:    '🔥',
+  celebrate: '🎉',
+  warning:   '⚠️',
+};
+
+let _ptEs    = null;
+let _ptTimer = null;
+
+function initPtCoach() {
+  if (_ptEs) return;
+  _ptEs = new EventSource('/api/pt/stream');
+
+  _ptEs.onmessage = (e) => {
+    try {
+      showPtBanner(JSON.parse(e.data));
+    } catch (_) {}
+  };
+
+  _ptEs.onerror = () => {
+    _ptEs.close();
+    _ptEs = null;
+    setTimeout(initPtCoach, 10000);
+  };
+}
+
+function showPtBanner(notif) {
+  const banner   = document.getElementById('pt-banner');
+  const msgEl    = document.getElementById('pt-msg');
+  const avatarEl = document.getElementById('pt-avatar');
+
+  avatarEl.textContent = PT_EMOJI[notif.type] ?? '💪';
+  msgEl.textContent    = notif.message;
+
+  banner.className = `pt-banner type-${notif.type}`;
+  requestAnimationFrame(() => banner.classList.add('show'));
+
+  clearTimeout(_ptTimer);
+  _ptTimer = setTimeout(closePtBanner, 8000);
+}
+
+function closePtBanner() {
+  document.getElementById('pt-banner').classList.remove('show');
+  clearTimeout(_ptTimer);
 }
 
 // ── 헬퍼 ───────────────────────────────────────
