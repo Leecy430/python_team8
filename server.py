@@ -30,6 +30,7 @@ from modules.outfit import get_outfit_recommendation
 from modules.inbody import process_inbody_image
 from apscheduler.schedulers.background import BackgroundScheduler
 from modules.calendar_sync import sync_calendar
+from pt.notifier import router as pt_router
 
 
 KST = timezone(timedelta(hours=9))
@@ -37,6 +38,9 @@ UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 app = FastAPI(title="세얼간이 건강지킴이 API")
+
+# PT 코치 라우터 등록
+app.include_router(pt_router)
 
 # CORS 설정
 app.add_middleware(

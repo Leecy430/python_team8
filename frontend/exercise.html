@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>운동 — 세얼간이</title>
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/components.css">
@@ -10,9 +10,9 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     .exercise-suggestion {
-      padding: 8px 14px;
+      padding: 8px 12px;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       border-bottom: 1px solid var(--border);
       transition: background .1s;
     }
@@ -21,7 +21,7 @@
       background: var(--card);
       border: 1.5px solid var(--border);
       border-top: none;
-      border-radius: 0 0 10px 10px;
+      border-radius: 0 0 12px 12px;
       overflow: hidden;
       position: absolute;
       width: 100%;
@@ -33,119 +33,127 @@
 </head>
 <body>
 
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="/" class="nav-logo">🏃 세얼간이</a>
-    <div class="nav-links">
-      <a href="/"         class="nav-link">대시보드</a>
-      <a href="/diet"     class="nav-link">🍽 식단</a>
-      <a href="/exercise" class="nav-link active">🏋 운동</a>
-      <a href="/settings" class="nav-link">⚙️ 설정</a>
-    </div>
-  </div>
-</nav>
-
-<div class="container">
+<div class="app-shell scroll-page">
 
   <!-- 헤더 -->
   <div class="page-header">
     <div>
       <div class="page-title">🏋 운동</div>
-      <div class="page-subtitle">AI 맞춤 루틴 · 공강 운동 · 퇴근길 산책</div>
+      <div class="page-subtitle">AI 루틴 · 공강 운동 · 산책</div>
     </div>
-    <button class="btn btn-secondary btn-sm" onclick="loadExerciseRecommend();loadFreeSlots();loadWalk()">🔄 새로고침</button>
+    <button class="btn btn-secondary btn-sm" onclick="loadExerciseRecommend();loadFreeSlots();loadWalk()">↺ 새로고침</button>
   </div>
 
-  <!-- AI 운동 루틴 추천 -->
-  <div class="card ai-card mb-4" style="background:linear-gradient(135deg,var(--primary-light),#fff);border:1px solid #bfdbfe">
-    <div id="exerciseRecommend">
-      <div class="loading-box"><div class="spinner"></div><div>AI가 오늘 루틴을 분석 중...</div></div>
-    </div>
-  </div>
+  <div class="container">
 
-  <div class="grid-2">
+    <!-- AI 운동 루틴 추천 -->
+    <div class="ai-card mb-4">
+      <div id="exerciseRecommend">
+        <div class="loading-box"><div class="spinner"></div><div style="font-size:12px;color:var(--text-muted)">AI가 오늘 루틴 분석 중...</div></div>
+      </div>
+    </div>
 
     <!-- 공강 운동 추천 -->
-    <div class="card">
+    <div class="card mb-4">
       <div class="card-header">
-        <div class="card-label">⏰ 공강 시간 운동 추천</div>
-        <span class="badge badge-green">시간표 기반</span>
+        <div class="card-label">⏰ 공강 시간 운동</div>
+        <span class="badge badge-purple">시간표 기반</span>
       </div>
       <div id="freeSlots">
         <div class="loading-box"><div class="spinner"></div></div>
       </div>
     </div>
 
-    <!-- 퇴근길 산책 -->
-    <div class="card">
-      <div class="card-label" style="margin-bottom:12px">🚶 퇴근길 산책 추천</div>
+    <!-- 산책 지도 -->
+    <div class="card mb-4">
+      <div class="card-label mb-3">🚶 퇴근길 산책 추천</div>
       <div id="walkRecommend">
         <div class="loading-box"><div class="spinner"></div></div>
       </div>
     </div>
 
-  </div>
+    <!-- 운동 수동 기록 -->
+    <div class="card mb-4">
+      <div class="card-label mb-3">✏️ 운동 직접 기록</div>
 
-  <!-- 운동 수동 기록 -->
-  <div class="card">
-    <div class="card-label" style="margin-bottom:16px">✏️ 운동 직접 기록</div>
-
-    <div class="grid-2">
-      <div class="input-group">
-        <label class="input-label">운동 종목</label>
-        <div class="input-wrap">
-          <input type="text" id="exName" class="input" placeholder="예) 스쿼트" autocomplete="off">
-          <div id="exSuggestions"></div>
+      <div class="grid-2">
+        <div class="input-group">
+          <label class="input-label">운동 종목</label>
+          <div class="input-wrap">
+            <input type="text" id="exName" class="input" placeholder="예) 스쿼트" autocomplete="off">
+            <div id="exSuggestions"></div>
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label">시간 (분)</label>
+          <input type="number" id="exDuration" class="input" placeholder="30" min="1" max="300">
         </div>
       </div>
+
       <div class="input-group">
-        <label class="input-label">시간 (분)</label>
-        <input type="number" id="exDuration" class="input" placeholder="30" min="1" max="300">
+        <label class="input-label">체중 (kg) — 칼로리 계산용</label>
+        <input type="number" id="exWeight" class="input" placeholder="70" value="70" min="30" max="200">
       </div>
+
+      <div class="alert alert-info mb-3" style="font-size:12px">
+        💡 MET 공식으로 소모 칼로리를 계산합니다.<br>
+        걷기(3.5) · 달리기(8.0) · 스쿼트(5.0) · 푸시업(4.0) · 줄넘기(10.0) 등
+      </div>
+
+      <button class="btn btn-primary btn-full" id="saveExBtn" onclick="saveExercise()">
+        💾 운동 기록 저장
+      </button>
     </div>
 
-    <div class="input-group">
-      <label class="input-label">체중 (kg) — MET 칼로리 계산용</label>
-      <input type="number" id="exWeight" class="input" placeholder="70" value="70" min="30" max="200">
-    </div>
-
-    <div class="alert alert-info" style="margin-bottom:14px;font-size:13px">
-      💡 MET 공식: <strong>MET × 체중(kg) × 시간(h)</strong> 으로 소모 칼로리를 계산합니다.<br>
-      지원 운동: 걷기(3.5) · 달리기(8.0) · 스쿼트(5.0) · 푸시업(4.0) · 줄넘기(10.0) 등
-    </div>
-
-    <button class="btn btn-primary btn-full" id="saveExBtn" onclick="saveExercise()">
-      💾 운동 기록 저장
-    </button>
   </div>
+
+  <!-- 하단 네비게이션 -->
+  <nav class="bottom-nav">
+    <a href="/" class="bnav-item">
+      <span class="bnav-icon">🏠</span>
+      <span class="bnav-label">홈</span>
+    </a>
+    <a href="/diet" class="bnav-item">
+      <span class="bnav-icon">🍽</span>
+      <span class="bnav-label">식단</span>
+    </a>
+    <a href="/exercise" class="bnav-item active">
+      <span class="bnav-icon">🏋</span>
+      <span class="bnav-label">운동</span>
+    </a>
+    <a href="/settings" class="bnav-item">
+      <span class="bnav-icon">⚙️</span>
+      <span class="bnav-label">설정</span>
+    </a>
+  </nav>
 
 </div>
 
 <div id="toast" class="toast"></div>
 
 <!-- 피드백 모달 -->
-<div id="feedbackModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:3000;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);align-items:center;justify-content:center">
-  <div style="background:var(--card);border-radius:20px;padding:28px 24px;width:92%;max-width:440px;box-shadow:0 24px 64px rgba(0,0,0,0.3)">
-    <div style="font-weight:700;font-size:17px;margin-bottom:6px">👎 어떤 점이 별로였나요?</div>
-    <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px">피드백을 남겨주시면 다음 추천에 반영됩니다</div>
+<div id="feedbackModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:3000;background:rgba(26,22,53,.55);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div class="modal-box">
+    <div class="modal-title">👎 어떤 점이 별로였나요?</div>
+    <div class="modal-sub">피드백을 남겨주시면 다음 추천에 반영됩니다</div>
     <textarea id="feedbackText" class="input" rows="4"
       placeholder="예) 강도가 너무 높아요, 비슷한 운동만 나와요..."
-      style="width:100%;resize:none;margin-bottom:14px;box-sizing:border-box"></textarea>
+      style="resize:none;margin-bottom:12px"></textarea>
     <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button class="btn btn-secondary" onclick="closeFeedbackModal()">취소</button>
-      <button class="btn btn-primary" onclick="submitFeedbackModal()">완료</button>
+      <button class="btn btn-secondary btn-sm" onclick="closeFeedbackModal()">취소</button>
+      <button class="btn btn-primary btn-sm" onclick="submitFeedbackModal()">완료</button>
     </div>
   </div>
 </div>
 
 <!-- 지도 확대 모달 -->
-<div id="mapModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:2000;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px)">
-  <div style="position:relative;width:92%;max-width:700px;height:80vh;margin:4vh auto;background:var(--card);border-radius:20px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.3)">
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)">
-      <div style="font-weight:700;font-size:16px">🗺 산책 경로</div>
+<div id="mapModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:2000;background:rgba(26,22,53,.6);backdrop-filter:blur(4px)">
+  <div style="position:relative;width:92%;max-width:430px;height:80dvh;margin:4dvh auto;background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-md)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)">
+      <div style="font-weight:800;font-size:15px">🗺 산책 경로</div>
       <button onclick="closeMapModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-muted);line-height:1">✕</button>
     </div>
-    <div id="mapModalContainer" style="width:100%;height:calc(100% - 57px)"></div>
+    <div id="mapModalContainer" style="width:100%;height:calc(100% - 53px)"></div>
   </div>
 </div>
 

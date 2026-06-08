@@ -2,32 +2,20 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>식단 — 세얼간이</title>
   <link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/components.css">
 </head>
 <body>
 
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="/" class="nav-logo">🏃 세얼간이</a>
-    <div class="nav-links">
-      <a href="/"         class="nav-link">대시보드</a>
-      <a href="/diet"     class="nav-link active">🍽 식단</a>
-      <a href="/exercise" class="nav-link">🏋 운동</a>
-      <a href="/settings" class="nav-link">⚙️ 설정</a>
-    </div>
-  </div>
-</nav>
-
-<div class="container">
+<div class="app-shell scroll-page">
 
   <!-- 헤더 -->
   <div class="page-header">
     <div>
-      <div class="page-title">🍽 식단 관리</div>
-      <div class="page-subtitle">음식 사진을 올리면 AI가 영양소를 자동으로 분석해드려요</div>
+      <div class="page-title">🍽 식단</div>
+      <div class="page-subtitle">사진을 올리면 AI가 영양소를 분석해요</div>
     </div>
     <div class="date-row">
       <button class="date-nav-btn" onclick="prevDay()">‹</button>
@@ -36,28 +24,50 @@
     </div>
   </div>
 
-  <!-- 사진 업로드 -->
-  <div class="card mb-4">
-    <div class="card-label" style="margin-bottom:14px">📸 음식 사진 업로드</div>
-    <div class="upload-area" id="uploadArea">
-      <span class="upload-icon">📸</span>
-      <div class="upload-title">음식 사진을 올려주세요</div>
-      <div class="upload-sub">클릭하거나 드래그&드롭 · JPG · PNG</div>
+  <div class="container">
+
+    <!-- 칼로리 도넛 카드 -->
+    <div class="card mb-4">
+      <div class="card-label mb-3">오늘 칼로리</div>
+      <div class="calorie-donut-wrap">
+        <div class="calorie-donut">
+          <svg width="88" height="88" viewBox="0 0 88 88">
+            <circle cx="44" cy="44" r="34" fill="none" stroke="var(--border)" stroke-width="10"/>
+            <circle cx="44" cy="44" r="34" fill="none" stroke="var(--primary)" stroke-width="10"
+                    stroke-dasharray="0 213.63" stroke-linecap="round" id="donutArc"/>
+          </svg>
+          <div class="donut-center">
+            <div class="donut-kcal" id="donutKcal">—</div>
+            <div class="donut-label">kcal</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:3px">목표 칼로리</div>
+          <div style="font-size:22px;font-weight:800;color:var(--text)">2,000</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:2px">kcal / 일</div>
+        </div>
+      </div>
     </div>
-    <input type="file" id="fileInput" accept="image/*" style="display:none">
-    <div id="uploadResult"></div>
-  </div>
 
-  <!-- 영양소 요약 + 식단 목록 -->
-  <div class="grid-2">
-
-    <!-- 영양소 요약 -->
-    <div class="card" id="nutritionSummary">
+    <!-- 영양소 진행률 (JS 렌더링) -->
+    <div class="card mb-4" id="nutritionSummary">
       <div class="loading-box"><div class="spinner"></div></div>
     </div>
 
+    <!-- 음식 사진 업로드 -->
+    <div class="card mb-4">
+      <div class="card-label mb-3">📸 음식 사진 업로드</div>
+      <div class="upload-area" id="uploadArea">
+        <span class="upload-icon">📸</span>
+        <div class="upload-title">음식 사진을 올려주세요</div>
+        <div class="upload-sub">클릭하거나 드래그&드롭 · JPG · PNG</div>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" style="display:none">
+      <div id="uploadResult"></div>
+    </div>
+
     <!-- 오늘 식단 목록 -->
-    <div class="card">
+    <div class="card mb-4">
       <div class="card-header">
         <div class="card-label">📋 오늘 식단 목록</div>
       </div>
@@ -66,39 +76,59 @@
       </div>
     </div>
 
-  </div>
-
-  <!-- AI 식단 추천 -->
-  <div class="card">
-    <div class="flex-between mb-4">
-      <div class="card-label">🤖 다음 끼니 AI 추천</div>
-      <button class="btn btn-primary btn-sm" id="recommendBtn" onclick="getRecommend()">
-        🤖 AI 추천 받기
-      </button>
-    </div>
-    <div id="recommendResult">
-      <div class="empty-state">
-        <span class="empty-icon">🤖</span>
-        <div class="empty-text">버튼을 눌러 AI에게 다음 끼니를 추천받으세요<br>오늘 섭취 칼로리와 인바디 BMR을 분석합니다</div>
+    <!-- AI 다음 끼니 추천 -->
+    <div class="card mb-4">
+      <div class="flex-between mb-3">
+        <div class="card-label">🤖 다음 끼니 AI 추천</div>
+        <button class="btn btn-primary btn-sm" id="recommendBtn" onclick="getRecommend()">
+          추천받기
+        </button>
+      </div>
+      <div id="recommendResult">
+        <div class="empty-state">
+          <span class="empty-icon">🤖</span>
+          <div class="empty-text">버튼을 눌러 AI에게 다음 끼니를 추천받으세요<br>오늘 섭취 칼로리와 인바디 BMR을 분석합니다</div>
+        </div>
       </div>
     </div>
+
   </div>
+
+  <!-- 하단 네비게이션 -->
+  <nav class="bottom-nav">
+    <a href="/" class="bnav-item">
+      <span class="bnav-icon">🏠</span>
+      <span class="bnav-label">홈</span>
+    </a>
+    <a href="/diet" class="bnav-item active">
+      <span class="bnav-icon">🍽</span>
+      <span class="bnav-label">식단</span>
+    </a>
+    <a href="/exercise" class="bnav-item">
+      <span class="bnav-icon">🏋</span>
+      <span class="bnav-label">운동</span>
+    </a>
+    <a href="/settings" class="bnav-item">
+      <span class="bnav-icon">⚙️</span>
+      <span class="bnav-label">설정</span>
+    </a>
+  </nav>
 
 </div>
 
 <div id="toast" class="toast"></div>
 
 <!-- 피드백 모달 -->
-<div id="feedbackModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:3000;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);align-items:center;justify-content:center">
-  <div style="background:var(--card);border-radius:20px;padding:28px 24px;width:92%;max-width:440px;box-shadow:0 24px 64px rgba(0,0,0,0.3)">
-    <div style="font-weight:700;font-size:17px;margin-bottom:6px">👎 어떤 점이 별로였나요?</div>
-    <div style="font-size:13px;color:var(--text-muted);margin-bottom:16px">피드백을 남겨주시면 다음 추천에 반영됩니다</div>
+<div id="feedbackModal" class="modal-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:3000;background:rgba(26,22,53,.55);backdrop-filter:blur(4px);align-items:center;justify-content:center">
+  <div class="modal-box">
+    <div class="modal-title">👎 어떤 점이 별로였나요?</div>
+    <div class="modal-sub">피드백을 남겨주시면 다음 추천에 반영됩니다</div>
     <textarea id="feedbackText" class="input" rows="4"
       placeholder="예) 비슷한 메뉴만 추천해요, 칼로리가 너무 높아요..."
-      style="width:100%;resize:none;margin-bottom:14px;box-sizing:border-box"></textarea>
+      style="resize:none;margin-bottom:12px"></textarea>
     <div style="display:flex;gap:8px;justify-content:flex-end">
-      <button class="btn btn-secondary" onclick="closeFeedbackModal()">취소</button>
-      <button class="btn btn-primary" onclick="submitFeedbackModal()">완료</button>
+      <button class="btn btn-secondary btn-sm" onclick="closeFeedbackModal()">취소</button>
+      <button class="btn btn-primary btn-sm" onclick="submitFeedbackModal()">완료</button>
     </div>
   </div>
 </div>
