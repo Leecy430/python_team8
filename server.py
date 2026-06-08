@@ -7,6 +7,7 @@ FastAPI 백엔드 서버 - 모든 모듈 연결
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
+import asyncio
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -31,6 +32,7 @@ from modules.outfit import get_outfit_recommendation
 from modules.inbody import process_inbody_image
 from apscheduler.schedulers.background import BackgroundScheduler
 from modules.calendar_sync import sync_calendar
+from pt import notifier as pt_notifier
 
 
 KST = timezone(timedelta(hours=9))
@@ -38,6 +40,7 @@ UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
 app = FastAPI(title="세얼간이 건강지킴이 API")
+app.include_router(pt_notifier.router)
 
 # CORS 설정
 app.add_middleware(
@@ -367,7 +370,22 @@ async def receive_realtime_health(data: RealtimeHealthData):
     conn.close()
 
     print(f"저장완료: 걸음수={data.steps}, 심박수={data.heart_rate}, 수면={data.sleep_minutes}분, {data.sleep_start}~{data.sleep_end}")
+
+    if data.heart_rate > 0:
+        asyncio.create_task(_run_pt_coach(data.heart_rate, data.steps))
+
     return {"status": "ok", "received": data.dict()}
+
+
+async def _run_pt_coach(bpm: float, steps: int):
+    from pt.coach import check_and_notify
+    try:
+        notification = await asyncio.to_thread(check_and_notify, bpm, steps)
+        if notification:
+            await pt_notifier.broadcast(notification)
+            print(f"[피티쌤] {notification['trigger']}: {notification['message']}")
+    except Exception as e:
+        print(f"[피티쌤] 오류: {e}")
 
 
 if __name__ == "__main__":
