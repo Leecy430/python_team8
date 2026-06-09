@@ -157,6 +157,17 @@ async function loadMeals() {
     const carbGoal    = g.carb_goal    || 250;
     const fatGoal     = g.fat_goal     || 65;
 
+    // 도넛 차트 업데이트
+    const goalEl = document.getElementById('goalKcal');
+    if (goalEl) goalEl.textContent = goal.toLocaleString();
+    const kcalEl = document.getElementById('donutKcal');
+    if (kcalEl) kcalEl.textContent = Math.round(s.total_kcal || 0);
+    const arc = document.getElementById('donutArc');
+    if (arc) {
+      const pct = Math.min((s.total_kcal || 0) / goal, 1);
+      arc.setAttribute('stroke-dasharray', `${(pct * 226.2).toFixed(1)} 226.2`);
+    }
+
     summaryEl.innerHTML = `
       <div class="card-header">
         <div class="card-label">📊 영양소 요약</div>
