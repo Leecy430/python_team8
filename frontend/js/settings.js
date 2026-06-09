@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loadLocations();
   loadSchedule();
   loadInbody();
+  loadProfile();
   setupScheduleUpload();
   setupInbodyUpload();
 });
@@ -253,6 +254,54 @@ async function loadInbody() {
   } catch(e) {
     el.innerHTML = '';
   }
+}
+
+// ── 신체 정보 프로필 ─────────────────────────
+async function loadProfile() {
+  try {
+    const p = await API.getUserProfile();
+    if (p && p.height_cm) {
+      document.getElementById('profileHeight').value = p.height_cm;
+      document.getElementById('profileGender').value = p.gender || 'male';
+      if (p.age) document.getElementById('profileAge').value = p.age;
+    }
+  } catch(e) {}
+}
+
+async function saveProfile() {
+  const height = parseFloat(document.getElementById('profileHeight').value);
+  const gender = document.getElementById('profileGender').value;
+  const ageVal = document.getElementById('profileAge').value;
+  const age = ageVal ? parseInt(ageVal) : null;
+
+  if (!height || isNaN(height)) {
+    showToast('키를 입력해주세요.');
+    return;
+  }
+
+  const btn = document.getElementById('saveProfileBtn');
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+
+  try {
+    const res = await API.saveUserProfile(height, gender, age);
+    showToast('✅ 신체 정보가 저장되었습니다!');
+    if (res.goals) {
+      const g = res.goals;
+      const preview = document.getElementById('profileGoalPreview');
+      preview.style.display = 'block';
+      preview.innerHTML = `
+        <div style="font-weight:700;color:var(--text);margin-bottom:6px">📊 계산된 일일 목표</div>
+        <div>칼로리: <strong style="color:var(--orange)">${g.calorie_goal} kcal</strong></div>
+        <div>단백질: <strong>${g.protein_goal}g</strong> · 탄수화물: <strong>${g.carb_goal}g</strong> · 지방: <strong>${g.fat_goal}g</strong></div>`;
+    }
+  } catch(e) {
+    showToast('저장 실패: ' + e.message);
+  }
+
+  btn.disabled = false;
+  btn.textContent = '신체 정보 저장';
+  lucide.createIcons();
 }
 
 function ibItem(label, val, unit) {

@@ -183,6 +183,42 @@ async def upload_food_photo(file: UploadFile = File(...), description: str = For
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+def _calc_daily_goals() -> dict:
+    """체중·키·성별 기반 일일 칼로리·영양소 목표 계산 (Mifflin-St Jeor)"""
+    conn = get_conn()
+    inbody  = conn.execute("SELECT bmr_kcal, weight_kg FROM inbody ORDER BY measured_at DESC LIMIT 1").fetchone()
+    profile = conn.execute("SELECT height_cm, gender, age FROM user_profile LIMIT 1").fetchone()
+    conn.close()
+
+    weight = inbody["weight_kg"] if inbody and inbody["weight_kg"] else None
+    bmr_from_inbody = inbody["bmr_kcal"] if inbody and inbody["bmr_kcal"] else None
+    height = profile["height_cm"] if profile and profile["height_cm"] else None
+    gender = (profile["gender"] or "male") if profile else "male"
+    age    = profile["age"] if profile and profile["age"] else 25
+
+    if bmr_from_inbody:
+        bmr = bmr_from_inbody
+    elif weight and height:
+        if gender == "male":
+            bmr = 10 * weight + 6.25 * height - 5 * age + 5
+        else:
+            bmr = 10 * weight + 6.25 * height - 5 * age - 161
+    else:
+        bmr = 1700
+
+    calorie_goal = round(bmr * 1.5)
+    w = weight or 70
+    protein_goal = round(w * 1.6)
+    fat_goal     = round(calorie_goal * 0.25 / 9)
+    carb_goal    = round((calorie_goal - protein_goal * 4 - fat_goal * 9) / 4)
+
+    return {
+        "calorie_goal": calorie_goal,
+        "protein_goal": protein_goal,
+        "carb_goal":    carb_goal,
+        "fat_goal":     fat_goal,
+    }
+
 @app.get("/api/meals")
 def meals(date: str = None):
     if date is None:
@@ -190,6 +226,7 @@ def meals(date: str = None):
     return {
         "meals":   get_today_meals(date),
         "summary": get_today_nutrition_summary(date),
+        "goals":   _calc_daily_goals(),
     }
 
 @app.get("/api/meals/recommend")
@@ -295,6 +332,29 @@ async def upload_inbody_photo(file: UploadFile = File(...)):
         return {"success": True, "inbody": result}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# ════════════════════════════════════════════════════════
+# 사용자 프로필
+# ════════════════════════════════════════════════════════
+
+@app.get("/api/user/profile")
+def get_user_profile():
+    conn = get_conn()
+    row = conn.execute("SELECT * FROM user_profile LIMIT 1").fetchone()
+    conn.close()
+    return dict(row) if row else {}
+
+@app.post("/api/user/profile")
+def save_user_profile(height_cm: float, gender: str, age: int = None):
+    conn = get_conn()
+    conn.execute("DELETE FROM user_profile")
+    conn.execute(
+        "INSERT INTO user_profile (height_cm, gender, age) VALUES (?, ?, ?)",
+        (height_cm, gender, age)
+    )
+    conn.commit()
+    conn.close()
+    return {"success": True, "goals": _calc_daily_goals()}
 
 # ════════════════════════════════════════════════════════
 # 옷차림

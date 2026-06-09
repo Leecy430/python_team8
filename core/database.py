@@ -137,6 +137,14 @@ def init_db():
         description TEXT
     )""")
 
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS user_profile (
+        id         INTEGER PRIMARY KEY,
+        height_cm  REAL,
+        gender     TEXT,
+        age        INTEGER
+    )""")
+
     conn.commit()
     conn.close()
     print("✅ DB 초기화 완료")

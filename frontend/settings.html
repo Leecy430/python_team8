@@ -119,6 +119,36 @@
   <div class="settings-panel" data-panel="inbody">
 
     <div class="settings-section">
+      <div class="settings-title">신체 정보</div>
+      <p class="text-xs text-muted mb-3">키·성별 정보를 입력하면 일일 칼로리 목표가 자동으로 계산됩니다.</p>
+
+      <div class="input-row mb-3">
+        <div class="input-group" style="margin-bottom:0">
+          <label class="input-label">키 (cm)</label>
+          <input type="number" id="profileHeight" class="input" placeholder="예) 175" step="0.1">
+        </div>
+        <div class="input-group" style="margin-bottom:0">
+          <label class="input-label">나이</label>
+          <input type="number" id="profileAge" class="input" placeholder="예) 22">
+        </div>
+      </div>
+
+      <div class="input-group mb-3">
+        <label class="input-label">성별</label>
+        <select id="profileGender" class="input">
+          <option value="male">남성</option>
+          <option value="female">여성</option>
+        </select>
+      </div>
+
+      <div id="profileGoalPreview" style="display:none;background:var(--bg);border-radius:10px;padding:12px;margin-bottom:12px;font-size:13px;color:var(--text-muted)"></div>
+
+      <button class="btn btn-primary btn-full" id="saveProfileBtn" onclick="saveProfile()">
+        <i data-lucide="save"></i> 신체 정보 저장
+      </button>
+    </div>
+
+    <div class="settings-section">
       <div class="settings-title">인바디 데이터 등록</div>
       <p class="text-xs text-muted mb-3">결과지 사진을 올리면 체중·골격근·체지방·BMR을 자동으로 추출합니다.</p>
       <div class="upload-area" id="inbodyUploadArea">

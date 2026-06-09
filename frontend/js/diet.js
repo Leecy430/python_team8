@@ -149,12 +149,13 @@ async function loadMeals() {
     const data = await API.getMeals(dietDate);
     const meals = data.meals || [];
     const s = data.summary || {};
+    const g = data.goals || {};
 
-    // 영양소 요약
-    const goal = 2000;
-    const proteinGoal = 60;
-    const carbGoal = 250;
-    const fatGoal = 65;
+    // 신체정보 기반 일일 목표 (없으면 기본값)
+    const goal        = g.calorie_goal || 2000;
+    const proteinGoal = g.protein_goal || 60;
+    const carbGoal    = g.carb_goal    || 250;
+    const fatGoal     = g.fat_goal     || 65;
 
     summaryEl.innerHTML = `
       <div class="card-header">

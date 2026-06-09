@@ -170,6 +170,17 @@ const API = {
     return this._post('/api/inbody/photo', fd);
   },
 
+  // ── 사용자 프로필 ─────────────────────────
+  getUserProfile() {
+    return this._get('/api/user/profile');
+  },
+
+  saveUserProfile(height_cm, gender, age = null) {
+    const q = new URLSearchParams({ height_cm, gender });
+    if (age) q.append('age', age);
+    return this._postParams(`/api/user/profile?${q}`);
+  },
+
   // ── 피드백 ───────────────────────────────
   submitFeedback(type, rating, content, context = '') {
     return this._postJSON('/api/feedback', { type, rating, content, context });
