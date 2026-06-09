@@ -183,32 +183,30 @@ async def upload_food_photo(file: UploadFile = File(...), description: str = For
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# 사용자 고정 신체정보 (2003년생 남성 174cm)
+_USER_HEIGHT_CM = 174
+_USER_GENDER    = "male"
+_USER_AGE       = 23  # 2026 - 2003
+
 def _calc_daily_goals() -> dict:
-    """체중·키·성별 기반 일일 칼로리·영양소 목표 계산 (Mifflin-St Jeor)"""
+    """인바디 체중 + 고정 신체정보 기반 일일 목표 계산 (Mifflin-St Jeor)"""
     conn = get_conn()
-    inbody  = conn.execute("SELECT bmr_kcal, weight_kg FROM inbody ORDER BY measured_at DESC LIMIT 1").fetchone()
-    profile = conn.execute("SELECT height_cm, gender, age FROM user_profile LIMIT 1").fetchone()
+    inbody = conn.execute(
+        "SELECT bmr_kcal, weight_kg FROM inbody ORDER BY measured_at DESC LIMIT 1"
+    ).fetchone()
     conn.close()
 
-    weight = inbody["weight_kg"] if inbody and inbody["weight_kg"] else None
-    bmr_from_inbody = inbody["bmr_kcal"] if inbody and inbody["bmr_kcal"] else None
-    height = profile["height_cm"] if profile and profile["height_cm"] else None
-    gender = (profile["gender"] or "male") if profile else "male"
-    age    = profile["age"] if profile and profile["age"] else 25
+    weight          = inbody["weight_kg"] if inbody and inbody["weight_kg"] else 70
+    bmr_from_inbody = inbody["bmr_kcal"]  if inbody and inbody["bmr_kcal"]  else None
 
     if bmr_from_inbody:
         bmr = bmr_from_inbody
-    elif weight and height:
-        if gender == "male":
-            bmr = 10 * weight + 6.25 * height - 5 * age + 5
-        else:
-            bmr = 10 * weight + 6.25 * height - 5 * age - 161
     else:
-        bmr = 1700
+        # Mifflin-St Jeor 남성: 10W + 6.25H - 5A + 5
+        bmr = 10 * weight + 6.25 * _USER_HEIGHT_CM - 5 * _USER_AGE + 5
 
     calorie_goal = round(bmr * 1.5)
-    w = weight or 70
-    protein_goal = round(w * 1.6)
+    protein_goal = round(weight * 1.6)
     fat_goal     = round(calorie_goal * 0.25 / 9)
     carb_goal    = round((calorie_goal - protein_goal * 4 - fat_goal * 9) / 4)
 
