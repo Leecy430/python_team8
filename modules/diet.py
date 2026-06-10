@@ -48,8 +48,26 @@ def get_diet_recommendation(date: str = None) -> dict:
     total_carb = sum(m["carb_g"] or 0 for m in meals)
     total_fat = sum(m["fat_g"] or 0 for m in meals)
     burned = steps["calorie"] if steps and steps["calorie"] else 0
-    bmr = inbody["bmr_kcal"] if inbody else 1700
-    weight = inbody["weight_kg"] if inbody else 70
+    bmr = inbody["bmr_kcal"] if inbody and inbody["bmr_kcal"] else None
+    weight = inbody["weight_kg"] if inbody and inbody["weight_kg"] else 70
+
+    # 고정 신체정보 (2003년생 남성 174cm)
+    HEIGHT_CM = 174
+    AGE       = 23
+    GENDER    = "남성"
+
+    # 인바디 BMR 없으면 Mifflin-St Jeor로 계산
+    if not bmr:
+        bmr = round(10 * weight + 6.25 * HEIGHT_CM - 5 * AGE + 5)
+
+    # 일일 목표 칼로리 = BMR × 1.5
+    calorie_goal  = round(bmr * 1.5)
+    protein_goal  = round(weight * 1.6)
+    fat_goal      = round(calorie_goal * 0.25 / 9)
+    carb_goal     = round((calorie_goal - protein_goal * 4 - fat_goal * 9) / 4)
+
+    # 남은 칼로리 여유 = 목표 - 이미 먹은 것 + 운동 소모
+    calorie_remaining = calorie_goal - total_intake + burned
 
     bad_feedbacks = get_recent_bad_feedback('diet', limit=3)
     feedback_warning = ''
@@ -76,14 +94,21 @@ def get_diet_recommendation(date: str = None) -> dict:
             + "\n\n"
         )
 
-    prompt = f"""{feedback_warning}나의 오늘 건강 데이터야:
+    prompt = f"""{feedback_warning}아래는 나의 신체정보와 오늘 건강 데이터야:
 
-- 오늘 섭취: {total_intake:.0f}kcal (단백질 {total_protein:.0f}g, 탄수화물 {total_carb:.0f}g, 지방 {total_fat:.0f}g)
-- 오늘 소모: {burned:.0f}kcal (걸음수 기반)
+[신체정보]
+- 성별: {GENDER} / 나이: {AGE}세 / 키: {HEIGHT_CM}cm / 체중: {weight}kg
 - 기초대사량(BMR): {bmr}kcal
-- 체중: {weight}kg
+- 일일 권장 칼로리 목표: {calorie_goal}kcal (BMR × 1.5)
+- 권장 단백질: {protein_goal}g / 탄수화물: {carb_goal}g / 지방: {fat_goal}g
 
-다음 끼니 추천 메뉴 3가지를 아래 JSON 형식으로만 응답해줘. 다른 말은 하지 마.
+[오늘 섭취 현황]
+- 섭취 칼로리: {total_intake:.0f}kcal (단백질 {total_protein:.0f}g, 탄수화물 {total_carb:.0f}g, 지방 {total_fat:.0f}g)
+- 운동 소모: {burned:.0f}kcal
+- 남은 칼로리 여유: {calorie_remaining:.0f}kcal (목표 {calorie_goal}kcal - 섭취 {total_intake:.0f}kcal + 소모 {burned:.0f}kcal)
+
+위 데이터를 바탕으로 다음 끼니 추천 메뉴 3가지를 아래 JSON 형식으로만 응답해줘. 다른 말은 하지 마.
+추천 메뉴의 칼로리 합이 '남은 칼로리 여유'에 맞도록 조절해줘.
 
 {{
   "meals": [
@@ -91,8 +116,8 @@ def get_diet_recommendation(date: str = None) -> dict:
     {{"name": "메뉴명", "kcal": 숫자, "reason": "추천 이유 한 줄"}},
     {{"name": "메뉴명", "kcal": 숫자, "reason": "추천 이유 한 줄"}}
   ],
-  "comment": "오늘 영양 상태 한 줄 코멘트",
-  "calorie_balance": 칼로리수지(소모-섭취 숫자)
+  "comment": "오늘 영양 상태 및 목표 대비 현황 한 줄 코멘트",
+  "calorie_balance": {calorie_remaining:.0f}
 }}"""
 
     response = client.messages.create(
