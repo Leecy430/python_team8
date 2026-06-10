@@ -32,7 +32,12 @@ async function refreshLiveData() {
     const data = await API.getDashboard(currentDate);
     renderSteps(data.steps);
     renderHeartrate(data.heart_rate);
-  } catch(_) {}
+    const now = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const el = document.getElementById('live-refresh-time');
+    if (el) el.textContent = now;
+  } catch(e) {
+    console.error('[자동갱신 오류]', e);
+  }
 }
 
 function loadAll() {

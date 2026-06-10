@@ -39,6 +39,9 @@
       <div class="card stat-card stat-red"    id="hr-card">
         <div class="loading-box"><div class="spinner"></div></div>
       </div>
+      <div style="grid-column:1/-1;font-size:11px;color:var(--text-muted);text-align:right;margin-top:-8px;padding-right:4px">
+        🔄 자동갱신 · 마지막: <span id="live-refresh-time">—</span>
+      </div>
       <div class="card stat-card stat-orange" id="inbody-card">
         <div class="loading-box"><div class="spinner"></div></div>
       </div>
@@ -106,8 +109,8 @@
 
 <div id="toast" class="toast"></div>
 
-<script src="/static/js/api.js"></script>
-<script src="/static/js/dashboard.js"></script>
+<script src="/static/js/api.js?v=2"></script>
+<script src="/static/js/dashboard.js?v=2"></script>
 <script>lucide.createIcons();</script>
 </body>
 </html>
