@@ -4,6 +4,7 @@
 
 let currentDate = today();
 let scheduleDate = today();
+let _liveTimer = null;
 console.log("dashboard.js 실행됨");
 
 // ── 초기화 ─────────────────────────────────────
@@ -11,7 +12,28 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('dateInput').value = currentDate;
   loadAll();
   initPtCoach();
+  startLiveRefresh();
 });
+
+// ── 걸음수·심박수 자동 갱신 (10초, 오늘만) ──────
+function startLiveRefresh() {
+  stopLiveRefresh();
+  if (currentDate !== today()) return;
+  _liveTimer = setInterval(refreshLiveData, 10000);
+}
+
+function stopLiveRefresh() {
+  if (_liveTimer) { clearInterval(_liveTimer); _liveTimer = null; }
+}
+
+async function refreshLiveData() {
+  if (document.hidden) return;
+  try {
+    const data = await API.getDashboard(currentDate);
+    renderSteps(data.steps);
+    renderHeartrate(data.heart_rate);
+  } catch(_) {}
+}
 
 function loadAll() {
   scheduleDate = currentDate;
@@ -35,6 +57,7 @@ function prevDay() {
   currentDate = d.toISOString().split('T')[0];
   document.getElementById('dateInput').value = currentDate;
   loadAll();
+  startLiveRefresh();
 }
 
 function nextDay() {
@@ -45,11 +68,13 @@ function nextDay() {
   currentDate = d.toISOString().split('T')[0];
   document.getElementById('dateInput').value = currentDate;
   loadAll();
+  startLiveRefresh();
 }
 
 function onDateChange(val) {
   currentDate = val;
   loadAll();
+  startLiveRefresh();
 }
 
 // ── 대시보드 메인 데이터 ─────────────────────────
