@@ -28,7 +28,7 @@ def get_diet_recommendation(date: str = None) -> dict:
     # 오늘 섭취 칼로리
     meals = conn.execute("""
         SELECT food_name, kcal, protein_g, carb_g, fat_g
-        FROM meals WHERE date(eaten_at) = ?
+        FROM meals WHERE substr(eaten_at, 1, 10) = ?
     """, (date,)).fetchall()
 
     # 오늘 걸음수 (칼로리 소모)

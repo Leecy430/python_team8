@@ -197,7 +197,7 @@ def get_today_meals(date: str = None) -> list[dict]:
     conn = get_conn()
     rows = conn.execute("""
         SELECT eaten_at, food_name, kcal, protein_g, carb_g, fat_g
-        FROM meals WHERE date(eaten_at) = ?
+        FROM meals WHERE substr(eaten_at, 1, 10) = ?
         ORDER BY eaten_at
     """, (date,)).fetchall()
     conn.close()

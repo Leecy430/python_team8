@@ -72,7 +72,7 @@ def get_exercise_recommendation(date: str = None) -> dict:
     # 최근 7일 운동
     recent_ex = conn.execute("""
         SELECT name, duration_min, kcal_burned
-        FROM exercises WHERE date(done_at) >= date(?, '-7 days')
+        FROM exercises WHERE substr(done_at, 1, 10) >= date(?, '-7 days')
         ORDER BY done_at DESC
     """, (date,)).fetchall()
 
@@ -176,7 +176,7 @@ def get_free_slot_exercise(day_of_week: int = None) -> list[dict]:
 
     today = datetime.now(tz=KST).strftime("%Y-%m-%d")
     recent_ex = conn.execute("""
-        SELECT name FROM exercises WHERE date(done_at) >= date(?, '-7 days')
+        SELECT name FROM exercises WHERE substr(done_at, 1, 10) >= date(?, '-7 days')
         ORDER BY done_at DESC LIMIT 10
     """, (today,)).fetchall()
     conn.close()
