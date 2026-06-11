@@ -402,15 +402,20 @@ async def receive_realtime_health(data: RealtimeHealthData):
 
     # 수면 저장 (0보다 클 때만)
     if data.sleep_minutes > 0 and data.sleep_start:
-        cur.execute("""
-            SELECT id FROM sleep WHERE date=? AND start_time=?
-        """, (date_str, data.sleep_start))
+        # 수면 날짜 = end_time 기준 KST 날짜 (sync 날짜 아님)
+        try:
+            end_utc = datetime.fromisoformat(data.sleep_end.replace('Z', '+00:00'))
+            sleep_date = (end_utc + timedelta(hours=9)).strftime("%Y-%m-%d")
+        except Exception:
+            sleep_date = date_str
+        # start_time만으로 중복 체크 (날짜 무관)
+        cur.execute("SELECT id FROM sleep WHERE start_time=?", (data.sleep_start,))
         existing = cur.fetchone()
         if not existing:
             cur.execute("""
                 INSERT INTO sleep (date, start_time, end_time, duration_min)
                 VALUES (?, ?, ?, ?)
-            """, (date_str, data.sleep_start, data.sleep_end, data.sleep_minutes))
+            """, (sleep_date, data.sleep_start, data.sleep_end, data.sleep_minutes))
 
     conn.commit()
     conn.close()
