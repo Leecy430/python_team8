@@ -409,14 +409,13 @@ async function loadOutfit() {
 }
 
 // ── 수면 부족 알림 ─────────────────────────────
-const SLEEP_NOTIF_KEY = () => `sleep_notif_${today()}`;
-// 23세 성인 남성 권장 수면: 8시간 (NSF 기준 18-25세 7~9시간)
-const RECOMMENDED_SLEEP_HOURS = 8;
+const RECOMMENDED_SLEEP_HOURS = 8; // 23세 성인 남성 권장 (NSF 기준 18-25세 7~9시간)
+let _sleepNotifShown = false;      // 페이지 세션 내 1회만
 
 function checkSleepNotify(sleep) {
+  if (_sleepNotifShown) return;
   if (!sleep || !sleep.duration_min) return;
   if (currentDate !== today()) return;
-  if (localStorage.getItem(SLEEP_NOTIF_KEY())) return; // 오늘 이미 알림
 
   const totalMin = sleep.duration_min;
   const hours    = Math.floor(totalMin / 60);
@@ -424,13 +423,12 @@ function checkSleepNotify(sleep) {
   const sleepStr = mins > 0 ? `${hours}시간 ${mins}분` : `${hours}시간`;
 
   if (totalMin < RECOMMENDED_SLEEP_HOURS * 60) {
+    _sleepNotifShown = true;
     setTimeout(() => {
       showPtBanner({
         type: 'warning',
-        message: `어젯밤 수면이 ${sleepStr}이에요. 오늘은 일찍 잠에 드시는 게 좋을 것 같아요!<br>
-          <span style="font-size:11px;opacity:0.85">[이창연님 권장 수면 시간: ${RECOMMENDED_SLEEP_HOURS}시간]</span>`,
+        message: `어젯밤 수면이 ${sleepStr}이에요. 오늘은 일찍 잠에 드시는 게 좋을 것 같아요!<br><span style="font-size:11px;opacity:0.85">[이창연님 권장 수면 시간: ${RECOMMENDED_SLEEP_HOURS}시간]</span>`,
       });
-      localStorage.setItem(SLEEP_NOTIF_KEY(), '1');
     }, 2000);
   }
 }
