@@ -27,16 +27,16 @@
 //   }, 1200);
 // }
 
-const ELEVATOR_NOTIF = {
-  avatar: '🏢',
-  message: '60주년 기념관은 곧 막히기 시작하니 미리 가서 엘리베이터를 탑승 할 수 있도록 하는게 좋을것 같아요',
-  type: 'info',
-};
+// const ELEVATOR_NOTIF = {
+//   avatar: '🏢',
+//   message: '60주년 기념관은 곧 막히기 시작하니 미리 가서 엘리베이터를 탑승 할 수 있도록 하는게 좋을것 같아요',
+//   type: 'info',
+// };
 
 function sendDummyNotifs() {
-  setTimeout(() => {
-    addToHistory(ELEVATOR_NOTIF);
-    renderHistory();
-    showBanner(ELEVATOR_NOTIF);
-  }, 1200);
+  // setTimeout(() => {
+  //   addToHistory(ELEVATOR_NOTIF);
+  //   renderHistory();
+  //   showBanner(ELEVATOR_NOTIF);
+  // }, 1200);
 }

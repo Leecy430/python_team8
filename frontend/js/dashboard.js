@@ -423,9 +423,9 @@ function initPtCoach() {
   _ptEs = new EventSource('/api/pt/stream');
 
   _ptEs.onmessage = (e) => {
-    try {
-      showPtBanner(JSON.parse(e.data));
-    } catch (_) {}
+    // try {
+    //   showPtBanner(JSON.parse(e.data));
+    // } catch (_) {}
   };
 
   _ptEs.onerror = () => {
